@@ -3,6 +3,22 @@
     <head>
         <title>dom learning</title>
         <meta charset="UTF-8">
+        <script>
+            // run this function when the document is loaded
+            window.onload = function() {
+                // create a couple of elements
+                // in an otherwise empty HTML page
+                
+                // 1.创建h1节点
+                heading = document.createElement("h1");
+                // 2.创建节点的内容
+                heading_text = document.createTextNode("Big Head"); 
+                // 3.将节点和内容连接一起
+                heading.appendChild(heading_text);
+                // 4.将节点和内容加入到文档的body中显示出来
+                document.body.appendChild(heading);
+            }
+        </script>
     </head>
 
     <body>
