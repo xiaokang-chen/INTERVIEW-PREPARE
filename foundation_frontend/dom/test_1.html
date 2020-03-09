@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>dom1 test 1</title>
+        <meta charset="utf-8">
+        <script type="application/javascript">
+            function start(){
+                // 获得从body中的引用
+                // var mybody = document.getElementsByTagName("body").item(0);
+                var mybody = document.body;
+                // 创建一个Table元素
+                var mytable = document.createElement("table");
+                // 创建一个tbody元素
+                var mytablebody = document.createElement('tbody');
+                // 创建所有单元格
+                for(j = 0; j < 2; j++){
+                    // 创建一个tr元素
+                    var mycurrent_row = document.createElement('tr');
+                    for(i = 0; i < 2; i++){
+                        // 创建一个td元素
+                        var mycurrent_cell = document.createElement('td');
+                        // 创建一个文本节点
+                        var currenttext = document.createTextNode("cell is row"
+                        +j+", column " + i);
+                        // 将我们创建的这个文本节点添加在Td元素中
+                        mycurrent_cell.appendChild(currenttext);
+                        // 将Td元素绑定到tr元素里
+                        mycurrent_row.appendChild(mycurrent_cell);
+                    }
+                    // 将tr元素添加到tbody里
+                    mytablebody.appendChild(mycurrent_row);
+                }
+                // 将tbady元素添加到table里
+                mytable.appendChild(mytablebody);
+                // 将table元素添加到body里
+                mybody.appendChild(mytable);
+                // 设置mytable的边界属性border为2
+                mytable.setAttribute("border", 2);
+            }
+        </script>
+    </head>
+
+    <body onload="start()">
+    </body>
+</html>

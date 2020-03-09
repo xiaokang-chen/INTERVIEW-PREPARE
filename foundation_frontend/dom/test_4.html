@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>dom1 test 3</title>
+        <meta charset="utf-8">
+        <script type="application/javascript">
+        // querySelectorAll返回一个NodeList，包含节点子树内所有与之相匹配的Element
+        // 节点
+        function start(){
+            var baseElement = document.querySelectorAll("p")[0];
+            document.getElementById("output").innerHTML =
+                (baseElement.querySelector("div span").innerHTML);
+        }
+        </script>
+    </head>
+
+    <body onload="start()">
+        <div>
+            <h5>Original content</h5>
+            <p>
+              inside paragraph
+              <span>inside span</span>
+              inside paragraph
+            </p>
+            <p>
+                the paragraph two
+            </p>
+          </div>
+          <div>
+            <h5>Output</h5>
+            <div id="output"></div>
+          </div>
+    </body>
+</html>

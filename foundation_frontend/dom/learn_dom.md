@@ -133,3 +133,124 @@ DOM中许多对象实现了多个接口。例如，table对象实现了[HTML Tab
 练习中需要补充的知识点操作截图：
 ![补充1](./pic/14.png)
 ![补充2](./pic/15.png)
+
+### 3.5、DOM Level 1 Core
+
+DOM1级别核心是用于**修改文档内容树**的强大对象模型，它是Web脚本编程的基础。
+
+#### 3.5.1 文档内容树
+
+即我们常说的DOM树，根据文档内容抽象出的一个树状结构。树的节点对应HTML元素，树的连线对应着HTML元素之间的内外关系。
+
+#### 3.5.2 DOM1的案例
+
+1. 使用Js和DOM接口创建一个HTML表格
+代码见[这里](test_1.html)
+上述代码生成的HTML代码如下：
+![js生成html代码](./pic/16.png)
+对应生成抽象的DOM树如下：
+![DOM树](./pic/17.png)
+这个例子可以看出创建一个完整的HTML元素的步骤：**先从上向下创建元素createElement()和createTextNode()，然后从下往上将子元素接到他们的父元素上appendChild()**。
+<br>
+
+2. 使用getElementByTagName()获取特定元素
+代码见[这里](test_2.html)
+对应从DOM树选中元素如下：
+![js生成html代码](./pic/18.png)
+使用removeChild()可以删除特定元素下的子元素。
+
+### 3.6、使用选择器定位DOM元素
+
+Selectors API提供了一组选择器匹配来从DOM中检索element节点。主要包括NodeSelector接口和Selectors接口
+
+- NodeSelector 接口
+这个接口提供了querySelector和querySelectorAll两个方法：
+
+1.querySelector
+[querySelector练习](test_3.html)
+![querySelector练习](./pic/19.png)
+2.querySelectorAll
+[querySelectorAll练习](test_4.html)
+![querySelectorAll练习](./pic/20.png)
+
+- Selectors接口
+选择器方法接受一个或多个逗号分隔的选择器来确定返回哪些元素
+
+1.选择文档中类（class）为waring或者note的p元素
+
+```js
+var res = document.querySelectorAll('p.waring, p.note');
+```
+
+2.通过ID查询
+
+```js
+// 选择元素id为mian、basic、id3的所有元素中的第一个元素
+var el = document.querySelector("#main, #basic, #id3");
+```
+
+<font color='red'>总结：querySelector()和querySelectorAll()方法括号中的参数可以是元素，也可以是id选择器或者class选择器。</font>
+
+### 3.7、DOM分级
+
+**1. DOM1级（DOM Level 1）**
+DOM1 级由两个模块组成：DOM核心（DOM Core）和DOM HTML。
+1）DOM 核心规定的是如何映射基于XML 的文档结构，以便简化对文档中任意部分的访问和操作。
+2）DOM HTML 模块则在DOM 核心的基础上加以扩展，添加了针对HTML 的对象和方法。
+**2. DOM2级（DOM Level 2）**
+在DOM1的基础上扩充了:
+1、鼠标和用户界面事件、范围、遍历等细分模块
+2、通过对象接口增加了对CSS（Cascading Style Sheets，层叠样式表）的支持
+3、DOM核心模块也经过扩展开始支持XML 命名空间
+**3. DOM3级（DOM Level 3）**
+1、以统一方式加载和保存文档的方法——在DOM 加载和保存（DOM Load and Save）模块中定义
+2、验证文档的方法——在DOM 验证（DOM Validation）模块中定义
+3、开始支持XML 1.0 规范
+
+### 3.8、DOM事件
+
+有3种方法来为一个DOM元素注册事件回调
+
+1、EventTarget.addEventListener
+
+```js
+// 假设myButton是一个按钮
+myButton.addEventListener('click', greet, false);
+function greet(event){
+    // 打印并查看event对象
+    console.log('greet: ' + arguments);
+    alert('Hello World');
+}
+```
+
+![为按钮添加点击事件监听](./pic/21.png)
+<font color='red'>现代Web技术的页面首选这个方法</font>
+
+2、HTML属性
+
+```js
+<button onclick="alert('Hello World')">
+```
+
+<font color='red'>这种方式应该尽量避免，因为这将使得HTML变大并减少可读性</font>
+
+3、DOM元素属性
+
+```js
+// 假设myButton是一个按钮
+myButton.onclick = function(event){
+    alert('Hello World');
+}
+```
+
+<font color='red'>这种方式的问题是每个事件及每个元素只能被设置一个回调</font>
+
+### 3.9、DOM的空白符
+
+具体查看[这里](https://developer.mozilla.org/zh-CN/docs/Web/API/Document_Object_Model/Whitespace)
+
+### 3.10 DOM练习
+
+MDN上8个例子的练习，[这里是原例](https://developer.mozilla.org/zh-CN/docs/Web/API/Document_Object_Model/Examples)
+
+[这里是练习](test_5.html)

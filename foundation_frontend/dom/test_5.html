@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>width/height example</title>
+        <meta charset="utf-8">
+
+        <style type="text/css">
+            #t-daddy { border: 1px solid red }
+            #c1 { background-color: pink; }
+        </style>
+
+        <script type="text/javascript">
+            // 案例1：高度和宽度
+            function init(){
+                var arrImages = new Array(3);
+
+                arrImages[0] = document.getElementById("image1");
+                arrImages[1] = document.getElementById("image2");
+                arrImages[2] = document.getElementById("image3");
+
+                var objOutput = document.getElementById("output");
+                var strHtml = "<ul>";
+                for(var i = 0; i < arrImages.length; i++){
+                    strHtml += "<li>image" + (i+1) +
+                        ": height=" + arrImages[i].height +
+                        ", width=" + arrImages[i].width + 
+                        ", style.height=" + arrImages[i].style.height + 
+                        ", style.width=" + arrImages[i].style.width + 
+                        "</li>"; 
+                }
+
+                // 需要用\来将/转义
+                strHtml += "<\/ul>"
+
+                objOutput.innerHTML = strHtml;
+            }
+
+            // 案例2：图片属性
+            function setBorderWidth(width) {
+                document.getElementById("img1").style.borderWidth = width + "px";
+            }
+
+            // 案例3：改变文字样式
+            function changeText() {
+                var p = document.getElementById("pid");
+
+                p.style.color = "blue"
+                p.style.fontSize = "18pt"
+            }
+
+            // 冒泡事件
+            function stopEvent(ev) {
+                c2 = document.getElementById("c2");
+                c2.innerHTML = "hello";
+
+                // this ought to keep t-daddy from getting the click.
+                ev.stopPropagation();
+                alert("event propagation halted.");
+                }
+
+            function load() {
+                elem = document.getElementById("tbl1");
+                elem.addEventListener("click", stopEvent, false);
+            }
+        </script>
+    </head>       
+    
+    <body onload="init();load();">
+        <p>Image 1: no height, width, or style 
+            <img id="image1" src="http://www.mozilla.org/images/mozilla-banner.gif">
+        </p>
+        
+        <p>Image 2: height="50", width="500", but no style 
+            <img id="image2" src="http://www.mozilla.org/images/mozilla-banner.gif" 
+                 height="50" width="500">
+        </p>
+        
+        <p>Image 3: no height, width, but style="height: 50px; width: 500px;"
+            <img id="image3" src="http://www.mozilla.org/images/mozilla-banner.gif" 
+                 style="height: 50px; width: 500px;">
+        </p>
+        
+        <div id="output"> </div>
+
+        <hr>
+
+        <p>
+            <img id="img1"
+                src="./pic/1.png" 
+                style="border: 5px solid green;"
+                width="100" height="100" alt="border test">
+        </p>
+          
+        <form name="FormName">
+            <input type="button" value="Make border 20px-wide" onclick="setBorderWidth(20);" /> 
+            <input type="button" value="Make border 5px-wide"  onclick="setBorderWidth(5);" />
+        </form>
+
+        <hr>
+
+        <!-- 这种onclick内嵌在HTML的写法不推荐 -->
+        <p id="pid" onclick="window.location.href = 'http://www.cnn.com/';">linker</p>
+
+        <form>
+            <p>
+                <input value="点击变蓝" type="button" onclick="changeText();">
+            </p>
+        </form>
+
+        <hr>
+
+        <table id="t-daddy" onclick="alert('hi');">
+            <tr id="tbl1">
+             <td id="c1">one</td>
+            </tr>
+            <tr>
+             <td id="c2">two</td>
+            </tr>
+        </table>
+    </body>
+</html>

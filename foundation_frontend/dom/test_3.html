@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>dom1 test 3</title>
+        <meta charset="utf-8">
+        <script type="application/javascript">
+        // querySelector返回节点子树与之相匹配的第一个Element节点
+        function start(){
+            var baseElement = document.querySelector("p");
+            document.getElementById("output").innerHTML =
+                (baseElement.querySelector("div span").innerHTML);
+        }
+        </script>
+    </head>
+
+    <body onload="start()">
+        <div>
+            <h5>Original content</h5>
+            <p>
+              inside paragraph
+              <span>inside span</span>
+              inside paragraph
+            </p>
+          </div>
+          <div>
+            <h5>Output</h5>
+            <div id="output"></div>
+          </div>
+    </body>
+</html>

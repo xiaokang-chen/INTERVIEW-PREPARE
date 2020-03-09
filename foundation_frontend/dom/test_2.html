@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>dom1 test 1</title>
+        <meta charset="utf-8">
+        <script type="application/javascript">
+            function start(){
+                // 获得所有body元素列表（因为body只有一个，所以列表中就一个）
+                let myDocumentElement = document.getElementsByTagName("body");
+                // 获取body元素(两种方法)
+                // let mybody = myDocumentElement.item(0);
+                let mybody = myDocumentElement[0];
+                // 获取body下所有的p元素
+                let myBodyElement = mybody.getElementsByTagName('p');
+                // 获取hello的那一个，即第二个
+                let myP = myBodyElement.item(1);
+                // 对获取到的元素设置属性
+                // myP.style.backgroundColor="red";
+                myP.style.background="blue";
+                // 使用removeChild移除<p>hi</p>
+                mybody.removeChild(myBodyElement[0]);
+            }
+        </script>
+    </head>
+
+    <body onload="start()">
+        <p>hi</p>
+        <p>hello</p>
+    </body>
+</html>
