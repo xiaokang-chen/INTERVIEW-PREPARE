@@ -333,6 +333,8 @@ ES5之后，有3种原生方法：
 ![对象6](./pic/25.png)
 3）通过Object.create()
 ![对象7](./pic/26.png)
+<font color='red'>4）es6的class</font>
+![对象9](./pic/class.png)
 
 #### 1.11.5 继承
 
