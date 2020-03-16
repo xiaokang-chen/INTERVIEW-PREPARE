@@ -385,7 +385,13 @@ class LinkedList {
         let previousNode;
         while(currentNode){
             if(currentNode.element === element){
-                previousNode.next = currentNode.next;
+                if(!currentNode.prev){
+                    // 删除头
+                    this.head = currentNode.next;
+                }else{
+                    // 删除尾或中间
+                    previousNode.next = currentNode.next;
+                }
                 this.length--;
                 return true;
             }
@@ -410,8 +416,8 @@ class LinkedList {
 // linkedList.insert(1, 2);
 // linkedList.insert(2, 7);
 // console.log(linkedList.print());
-// linkedList.remove_opt(7);
-// linkedList.remove(7);
+// linkedList.remove_opt(5);
+// linkedList.remove(5);
 // console.log(linkedList.print());
 // console.log(linkedList.head);
 
@@ -638,7 +644,7 @@ class DoubleyLinkedList{
 // dLinkedList.insert(2, 3);
 // dLinkedList.insert(3, 4);
 // console.log(dLinkedList.print());
-// dLinkedList.remove_opt(4);
+// dLinkedList.remove_opt(1);
 // console.log(dLinkedList.print());
 
 // 循环链表的实现与单链表和双链表类似（只不过是多了一个末尾连接）
@@ -971,3 +977,77 @@ class HashTableLD{
 // hashTable.remove('node');
 // console.log(hashTable.dataStore);
 
+/**
+ * 拉链法：将哈希值相同的记录存储在同一个线性链表中
+ */
+class LinkedListElement{
+    constructor(key, value){
+        this.key = key;
+        this.value = value;
+    }
+}
+class HashTableLL{
+    constructor(){
+        this.table = [];
+    }
+
+    // hash计算函数
+    hashFunction(key){
+        let hash = 0;
+        for(let i = 0; i < key.length; i++){
+            hash += key.charCodeAt(i);
+        }
+        return hash % 37;
+    }
+
+    put(key, value){
+        let position = this.hashFunction(key);
+        if(this.table[position] === undefined){
+            // 如果不存在，则建立一个新链表
+            this.table[position] = new LinkedList();
+        }
+        // 如果存在，那么直接append
+        this.table[position].append(new LinkedListElement(key, value));
+        console.log(position + ':' + key);
+    }
+
+    get(key){
+        let position = this.hashFunction(key);
+        if(this.table[position] !== undefined){
+            // 遍历链表
+            let current = this.table[position].head;
+            while(current){
+                if(current.element.key === key){
+                    return current.element.value;
+                }
+                current = current.next;
+            }
+        }
+        return undefined;
+    }
+
+    remove(key){
+        let position = this.hashFunction(key);
+        if(this.table[position] !== undefined){
+            let current = this.table[position].head;
+            while(current){
+                if(current.element.key === key){
+                    this.table[position].remove_opt(current.element);
+                    return true;
+                }
+                current = current.next;
+            }
+        }
+        return false;
+    }
+}
+
+// let hashTable = new HashTableLL();
+// hashTable.put('javascript', 'a');
+// hashTable.put('node', 'b1');
+// hashTable.put('noed', 'b2');
+// hashTable.put('typescript', 'c');
+// hashTable.put('react-native', 'd');
+// console.log(hashTable.get('node'));
+// hashTable.remove('node');
+// console.log(hashTable.table);
