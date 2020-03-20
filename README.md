@@ -45,7 +45,7 @@ A：时间层面上，需要精确到天；内容程度上，需要精确到具�
 
 #### 3.21
 
-**学习目标：** HTML、CSS基础（MDN官网的教程）；2道算法题
+**学习目标：** HTTP、HTML、CSS基础（MDN官网的教程）；2道算法题
 
 #### 3.22
 
@@ -90,3 +90,5 @@ A：时间层面上，需要精确到天；内容程度上，需要精确到具�
 #### 3.31
 
 **学习目标：** 将3月21到3月30号学习所记录的笔记从头到尾看一遍，对于不熟悉的部分进行记录，记录到unfamiliar文件夹内。
+
+在这阵子抽出时间看[浏览器工作原理](https://www.html5rocks.com/zh/tutorials/internals/howbrowserswork/#The_rendering_engine)-**web开发必看！**
