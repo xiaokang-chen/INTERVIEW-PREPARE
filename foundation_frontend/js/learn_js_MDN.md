@@ -1,4 +1,4 @@
-# js学习笔记
+# js学习笔记-MDN
 
 [toc]
 
@@ -108,8 +108,10 @@ ES6中引入let后，变量提升就不存在了。变量提升就是在使用va
 5）BigInt（任意精度的整数）
 6）String（字符串）
 7）Symbol（代表）
-- 非基本数据类型
+- 非基本数据类型（引用类型）
 8）Object（对象）
+
+<font color='red'>基本数据类型指的是简单的数据段，他们的值以键值对的形式保存在栈中</font>
 
 -**数据类型的转换**
 数字转化为字符串：
@@ -333,8 +335,11 @@ ES5之后，有3种原生方法：
 ![对象8](./pic/27.png)
 <font color='red'>2）通过构造函数</font>
 ![对象6](./pic/25.png)
-3）通过Object.create()
+通过构造函数创建对象（new），创建的对象是将属性添加到自身实例下的
+3）通过Object.create()---es6语法
 ![对象7](./pic/26.png)
+通过Object.create(proto, [propertiesObject])创建的对象是通过继承原对象实现的，即新对象的属性是在原型（\_\_proto__）之下的：
+![Object.create()](./pic/proto.png)
 <font color='red'>4）es6的class</font>
 ![对象9](./pic/class.png)
 

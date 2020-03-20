@@ -1,5 +1,5 @@
-// 树的节点
-export class Node{
+// 二叉树的节点
+class Node{
     constructor(key){
         this.key = key;
         this.left = null;
@@ -7,8 +7,77 @@ export class Node{
     }
 }
 
+class Tree{
+    constructor(){
+        this.root = null;
+    }
+    // 根据所给数组生成对应层次遍历对应的树结构
+    // ***********借助两个队列实现*****************
+    /**
+     * list队列存放当前层的节点，tempList存放当前层节点的子节点
+     * 假设list为[1, 2]，tempList为[null，7, 8, 9]，1的左右节点分别为null和7，而2的
+     * 左右节点分别为8和9。存放子节点的数组tempList中元素个数一定是存放节点数组list中
+     * 元素个数的两倍。
+     **/ 
+    createTree(arr){
+        // undefined或者[]时返回null
+        if(!arr || !arr.length) return null;
+        this.root = new Node(arr.shift());
+        let list = [this.root];
+        while(arr.length){
+            let tempList = [];
+            for(let i = 0; i < list.length; i++){
+                // 循环遍历存放父节点的数组，并在arr中依次取出
+                // 其对应的子节点，将其连接起来
+                let p = list[i];
+                let left = arr.shift();
+                let right = arr.shift();
+                if(left !== null){
+                    p.left = new Node(left);
+                    tempList.push(p.left);
+                }
+                if(right !== null){
+                    p.right = new Node(right);
+                    tempList.push(p.right);
+                }
+            }
+            list = tempList;
+        }
+        return this.root;
+    }
+
+    /**
+     * 使用一个队列
+     * @param {s} arr 
+     */
+    createTree2(arr){
+        if(!arr || arr.length === 0) return false;
+        this.root = new Node(arr.shift());
+        let queue = [this.root];
+        while(arr.length){
+            let len = queue.length;
+            for(let i = 0; i < len; i++){
+                let p = queue[i];
+                let left = arr.shift();
+                let right = arr.shift();
+                if(left !== null){
+                    p.left = new Node(left);
+                    queue.push(p.left);
+                }
+                if(right !== null){
+                    p.right = new Node(right);
+                    queue.push(p.right);
+                }
+                queue.shift();
+            }
+        }
+        return this.root;
+    }
+    
+}
+
 // 二叉搜索树
-export class BinarySearchTree{
+class BinarySearchTree{
     constructor(){
         this.root = null;
     }
@@ -167,6 +236,31 @@ export class BinarySearchTree{
     }
 }
 
+let res_dfs = [];
+// 递归实现二叉树深度优先搜索---（如果先从左，那么就是对应二叉树的先序遍历）
+function DFS(node){
+    if(node !== null){
+        res_dfs.push(node.key);
+        DFS(node.left);
+        DFS(node.right);
+    }
+    return res_dfs;
+}
+
+function DFS2(node){
+
+}
+
+let res_bfs = [];
+// 递归实现二叉树广度优先搜索---（如果先从左，那么就是对应二叉树的层次遍历）
+function BFS(node){
+    if(node !== null){
+        res_bfs.push(node.key);
+        // while()
+        BFS();
+    }
+}
+
 let tree = new BinarySearchTree();
 tree.insert(11); 
 tree.insert(7);
@@ -183,18 +277,28 @@ tree.insert(20);
 tree.insert(18);
 tree.insert(25);
 tree.insert(6);
-// 中序
-console.log(tree.inOrderTraverse());
 // 前序
 console.log(tree.preOrderTraverse());
+// 中序
+console.log(tree.inOrderTraverse());
 // 后序
 console.log(tree.postOrderTraverse());
-// 找最大、最小
-console.log(tree.min());
-console.log(tree.max());
-// 搜索
-console.log(tree.search(1));
-console.log(tree.search(8));
-// 移除
-tree.remove(15);
-console.log(tree.inOrderTraverse());
+// 深度优先
+console.log(DFS(tree.root));
+// // 找最大、最小
+// console.log(tree.min());
+// console.log(tree.max());
+// // 搜索
+// console.log(tree.search(1));
+// console.log(tree.search(8));
+// // 移除
+// tree.remove(15);
+// console.log(tree.inOrderTraverse());
+
+
+// module.exports = BinarySearchTree;
+
+
+
+
+module.exports = Tree;
