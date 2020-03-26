@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            /* 0101 */
+            #outer a {
+                background-color: red;
+            }
+            /* 0201 */
+            #outer #inner a {
+                background-color: blue;
+            }
+            /* 0104 */
+            #outer div ul li a {
+                color: yellow;
+            }
+            /* 0113 */
+            #outer div ul .nav a {
+                color: white;
+            }
+            /* 0024 --------暂时不懂 */ 
+            div div li:nth-child(2) a:hover {
+                border: 10px solid black;
+            }
+            /* 0023 --------暂时不懂 */
+            div li:nth-child(2) a:hover {
+                border: 10px dashed black;
+            }
+            /* 0033 --------暂时不懂 */
+            div div .nav:nth-child(2) a:hover {
+                border: 10px double black;
+            }
+            /* 0001 */
+            a {
+                display: inline-block;
+                line-height: 40px;
+                font-size: 20px;
+                text-decoration: none;
+                text-align: center;
+                width: 40px;
+                margin-bottom: 10px;
+            }
+            /* 0001 */
+            ul {
+                padding: 0;
+            }
+            /* 0001 */
+            li {
+                list-style-type: none;
+            }
+
+
+            /* 0100 */
+            #a {
+                background-color: blue;
+            }
+            /* 0010 */
+            .b {
+                background-color: red !important;
+            }
+
+            /* 属性选择器 */
+            a[href] {
+                background-color: orange;
+            }
+            a[href="https://www.baidu.com"] {
+                background-color: purple;
+            }
+
+            /* 伪类、伪元素布局 */
+            a:hover {
+                background-color: chartreuse;
+            }
+            p::first-line {
+                background-color: cyan;
+            }
+
+            /* 组合选择器 */
+            /* div span{color:#f00;} */
+            div>span {color:#888}
+        </style>
+    </head>
+    <body>
+        <div id="outer" class="container">
+            <div id="inner" class="container">
+                <ul>
+                    <li class="nav"><a href="#">One</a></li>
+                    <li class="nav"><a href="#">Two</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <p class="b" id="a">Some text</p>
+        <a>a不带href属性</a>
+        <a href="https://www.baidu.com">a带href属性，并且是百度</a>
+        <a href="#">a带href属性，但是不是百度</a>
+
+        <p>
+            <span>P标签中的第一个元素</span> 
+            <br>
+            <span>P标签中的第二个元素</>
+            <br>
+            <span>P标签中的第一个元素</span>
+        </p>
+
+        <div>
+            <p>
+                   <span>亲人</span>
+            </p>
+            <span>独家记忆</span>
+            <span>离不开你</span>
+        </div>
+
+    </body>
+</html>
