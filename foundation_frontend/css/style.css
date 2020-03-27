@@ -1,0 +1,115 @@
+/* spacing */
+
+table {
+    /* 设置单元格宽度布局方式，fixed代表所有单元格都会与第一个单元格等宽(内容超出会省略号)，
+    auto代表根据内容决定（表格元素不等宽） */
+    table-layout: fixed;
+    width: 100%;
+    border: 3px solid purple;
+    /* 决定表格边框是分隔还是拥挤，separate（分隔）状态下，单元格是独立拥有边框的
+       collapse（合并）状态下，单元格是与相邻的单元格共享边框的 */
+    border-collapse: collapse;
+}
+
+/* 伪元素，指代thead下的第一个th元素 */
+thead th:nth-child(1) {
+    width: 30%;
+}
+
+/* 后面以此类推 */
+thead th:nth-child(2) {
+    width: 20%;
+}
+
+thead th:nth-child(3) {
+    width: 15%;
+}
+
+thead th:nth-child(4) {
+    width: 35%;
+} 
+
+/* 给每个表各项设置20px的内边距 */
+th, td {
+    padding: 20px;
+}
+
+
+/* typography */
+
+/* 设置全局字体（无衬线字体） */
+html {
+    font-family: 'helvetica neue', helvetica, arial, sans-serif;
+}
+
+/* 在thead和tfoot设置朋克风格字体 */
+thead th, tfoot th {
+    font-family: 'Rock Salt', cursive;
+}
+
+/* 给th和td设置文本字符间距 */
+th {
+    letter-spacing: 2px;
+}
+td {
+    letter-spacing: 1px;
+  }
+
+/* th默认居中，所以只需要调整td */
+tbody td {
+    text-align: center;
+}
+/* 
+tbody th {
+    text-align: right;
+} */
+
+tfoot th {
+    text-align: right;
+}
+
+
+/* 添加颜色 */
+thead, tfoot {
+    background: url(leopardskin.jpg);
+    color: white;
+    /* 为文字添加阴影值 */
+    text-shadow: 1px 1px 1px black;
+}
+
+thead th, tfoot th, tfoot td {
+    /* 背景使用一个线性渐变函数设定 */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+    border: 3px solid purple;
+}
+
+/* 使用伪元素，选择tbody下的第奇数个tr */
+tbody tr:nth-child(odd) {
+    background-color: #ff33cc;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #e495e4;
+}
+
+tbody tr {
+    background-image: url(noise.png);
+}
+
+/* 给整个表格设置一个纯的背景颜色，以保证在不支持:nth-child选择器仍然
+   有它们的正文背景 */
+table {
+    background-color: #ff33cc;
+}
+
+/* 将标题当到表格末尾，并且给与一些样式 */
+caption {
+    font-family: 'Rock Salt', cursive;
+    padding: 20px;
+    font-style: italic;
+    /* caption-side是caption的私有属性，它控制表格标题是放在表头还是表尾（top、bottom） */
+    caption-side: bottom;
+    color: #666;
+    text-align: right;
+    letter-spacing: 1px;
+}
