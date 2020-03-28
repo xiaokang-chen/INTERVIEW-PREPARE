@@ -768,6 +768,7 @@ $base-color: #c6538c;
 通常设置字体的时候，会给一个**字体栈**，这样可以避免设置单一字体的情况下，有的网页显示不出来。设置方法如下：
 
 ```css
+/* font-family: [family-name(带引号)]|[generic-name] */
 p {
   font-family: "Trebuchet MS", Verdana, sans-serif;
 }
@@ -778,3 +779,234 @@ p {
 ## 四、样式化盒子
 
 ## 五、CSS布局
+
+### 5.1 布局简介
+
+CSS布局会通过以下的属性来改变默认布局方式。display、float、position、表格布局、多行布局。
+
+#### 5.1.1 display
+
+属性包括inline、block、inline-block，以及比较重点讨论的网格布局（grid）和弹性布局（flex）。其中可以通过display属性的设置对特定的元素进行inline和block布局的“切换”。
+
+<font color='red'>1）flexbox（弹性盒）</font>
+在父元素设置display:flex之后，（直接）子元素就是弹性布局了，可以在子元素的里面设置flex的数值来平均划分父元素的空间。
+
+<font color='red'>2）grid layout（网格布局）</font>
+弹性盒子是基于一维布局的，而网格布局是基于二维布局的（同时设置子元素的行列排布）。网格布局属性全定义在父元素中：
+
+```css
+.wrapper {
+    display: grid;
+    /* 网格列（3列，每列1fr----其中fr类似于flex:1的设置） */
+    grid-template-columns: 1fr 1fr 1fr;
+    /* 网格行（2行，每行100px） */
+    grid-template-rows: 100px 100px;
+    /* 网格元素间距 */
+    grid-gap: 10px;
+}
+```
+
+```html
+<div class="wrapper">
+    <div class="box">One</div>
+    <div class="box">Two</div>
+    <div class="box">Three</div>
+    <div class="box">Four</div>
+    <div class="box">Five</div>
+    <div class="box">Six</div>
+</div>
+```
+
+![网格布局1](./pic/31.png)
+
+还可以根据对子元素样式进行调试，来设计不同的网格元素
+
+```css
+.box1 {
+    grid-column: 2 / 4;
+    grid-row: 1;
+}
+.box2 {
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+.box3 {
+    grid-column: 3;
+    grid-row: 2;
+}
+```
+
+```html
+<div class="wrapper">
+    <div class="box1">One</div>
+    <div class="box2">Two</div>
+    <div class="box3">Three</div>
+</div>
+```
+
+![网格布局2](./pic/32.png)
+
+#### 5.1.2 float
+
+float的属性取值包括：
+
+- left：左浮动
+- right：右浮动
+- none：没有浮动
+- inherit：同父元素
+
+正常的文档流块级元素独占一行：
+![正常文档流](./pic/33.png)
+对块级元素加上浮动之后，可以看到屏幕的左侧被块级元素占据，“下面”的内容围绕着它，并继续向下排列：
+
+```css
+.box {
+        background-color: aqua;
+        float: left;
+        width: 80px;
+        height: 80px;
+        margin-right: 10px;
+    }
+```
+
+![浮动文档流](./pic/34.png)
+
+#### 5.1.3 position
+
+定位方式一共有5种：static、relative、absolute、fixed、sticky。
+
+1. static：静态定位，将元素放在文档布局流的默认位置
+2. relative：相对定位，将元素在正常文档流中微调
+3. absolute：绝对定位，将元素完全从页面的正常布局流中移出，这在复杂布局中很有用。可以将元素在\<html>边缘固定，或者是相对于其祖先元素。
+4. fixed：固定定位，与绝对定位很类似，唯一不同的它是相对于浏览器窗口固定。
+5. sticky：粘性定位，它的元素类似于static定位，在元素滑出视图之外时候，会类似fixed定位。
+
+具体练习参考[定位练习](test6.html)。
+
+- 静态定位：元素放在文档布局流的默认位置
+
+```html
+<h1>Positioning</h1>
+<p>I am a basic block level element.</p>
+<p>I am a basic block level element.</p>
+<p>I am a basic block level element.</p>
+```
+
+```css
+body {
+    width: 50%;
+    margin: 0 auto;
+}
+
+p {
+    background-color: rgb(207, 232, 220);
+    border: 2px solid rgb(79, 185, 227);
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+```
+
+![静态定位](./pic/35.png)
+
+- 相对定位：通过top、left、right、bottom来**相对正常文档流进行位置微调**。
+
+```css
+/* 给第二个段落一个相对定位（相对） */
+.relative {
+    position: relative;
+    top: 30px;
+    left: 30px;
+}
+```
+
+![相对定位](./pic/36.png)
+<font color='red'>这里需要特别注意！！！</font>相对定位不是相对于父元素！！！
+
+- 绝对定位：完全移除元素在文档流的布局，然后根据根元素使用top、left、right、bottom进行定位。<font color='blue'>他是依据离自身最近的布局为绝对定位的父元素。</font>
+
+```css
+.absolute {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+```
+
+![绝对定位](./pic/37.png)
+
+**需要注意的是：**<font color='red'>top、left、right、buttom都可以为负值，负值时，相当于像反方向移动对应的正值。</font>
+
+- 固定定位：偏移量是根据视图来定位的，也就是随着网页的下拉浏览，固定定位的元素是在视图的某个位置始终不变的。
+
+```css
+.fixed {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+}
+```
+
+![固定定位1](./pic/38.png)
+在下拉后，固定定位的元素位置相对视图不变：
+![固定定位2](./pic/39.png)
+
+- 粘性定位：它联合了静态定位了固定定位的特点。在视图没滑动到粘性定位元素之前和元素显示在当前视图中时，元素是遵循正常文档流布局的；当由于下拉滑动，导致元素脱离在视图之外时，粘性元素表现的效果和固定定位一样。
+
+在没有滑动到元素之前（static）：
+![粘性定位1](./pic/40.png)
+元素出现在当前视图（static）：
+![粘性定位2](./pic/41.png)
+当元素划出视图外（fixed）：
+![粘性定位3](./pic/42.png)
+
+#### 5.1.4 表格布局
+
+表格布局通常是针对不支持flexbox和grid布局的老式浏览器而在最早设计的。它就是将整个页面当作一个表格，对内容进行相应的划分。实际上这种方式灵活度远不如flexbox或grid。
+
+#### 5.1.5 多列布局
+
+通过设置column-width，将内容分列显示。比如：
+
+```css
+.contianer {
+    colunm-width: 500px;
+}
+```
+
+当当前窗口大于1000px时，内容分两列显示；大于1500px时，分三列...。
+
+窗口比较小的时候：
+![多列布局1](./pic/43.png)
+窗口大于1000px的时候开始分列：
+![多列布局2](./pic/44.png)
+
+### 5.2 正常流布局
+
+正常流布局就是最基本的两类布局元素（内联、块级）组合而成。也需要注意对于两个块之间的外边距（margin），是取大的那一个，也就是之前提到过的**间距叠加**。
+
+### 5.3 弹性盒子
+
+控制弹性盒子的属性：
+
+1. flex：设置每个元素占据的空间大小
+2. flex-direction：指定主轴方向，默认row
+3. flex-wrap：显示flex元素是单行显示还是多行显示（nowrap(默认单行)，wrap多行）
+
+### 5.4 网格布局
+
+### 5.5 浮动
+
+### 5.6 定位
+
+### 5.7 多列布局
+
+### 5.8 响应式设计
+
+### 5.9 媒体查询（入门）
+
+### 5.10 旧式布局
+
+### 5.11 旧式布局的浏览器支持
+
+### 5.12 基本布局理解
