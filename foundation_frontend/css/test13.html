@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>grid test</title>
+        <style>
+            .wrapper {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-auto-rows: minmax(100px, auto);
+                /* grid-template为 grid行列的缩写*/
+                /* grid-template: minmax(100px, auto) / repeat(3, 1fr); */
+
+                /* grid-gap已经废弃，使用gap替代 */
+                gap: 10px;
+                background-color: #fff;
+            } 
+            /* .grid {
+                display: grid;
+                height: 200px;
+                grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+                gap: 20px;
+            } */
+            .one {
+                grid-row: 1;
+                grid-column: 1/3;
+            }
+            .two {
+                grid-row: 1/3;
+                grid-column: 2/4;
+            }
+            .three {
+                grid-row: 2/5;
+                grid-column: 1;
+            }
+            .four {
+                grid-row: 3;
+                grid-column: 3;
+            }
+            .five {
+                grid-row: 4;
+                grid-column: 2;
+            }
+            .six {
+                grid-row: 4;
+                grid-column: 3;
+            }
+            div {
+                background-color: rgb(255, 150,150);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <div class="one">One</div>
+            <div class="two">Two</div>
+            <div class="three">Three</div>
+            <div class="four">Four</div>
+            <div class="five">Five</div>
+            <div class="six">Six</div>
+        </div>
+    </body>
+</html>
+

@@ -989,11 +989,213 @@ p {
 
 控制弹性盒子的属性：
 
+#### 5.3.1 控制方向及盒子大小
+
 1. flex：设置每个元素占据的空间大小
 2. flex-direction：指定主轴方向，默认row
-3. flex-wrap：显示flex元素是单行显示还是多行显示（nowrap(默认单行)，wrap多行）
+3. flex-wrap：显示flex元素是单行显示还是多行显示（nowrap(默认单行)，wrap多行），通常flex-wrap与flex一起使用。
+4. flex-flow：flex-direction和flex-wrap的组合。假如要设定“换行的行排”【flex-flow：row wrap】。
+
+其中flex还可以设置一个“初始值”，比如：
+
+```css
+/* box1的元素初始值为200px，box2的初始值为300px
+   剩余的空间1比2进行划分（比如长度是800px，那么box1的
+   最终长度为200px+100px=300px） */
+.box1 {
+    flex: 1 200px;
+}
+.box2 {
+    flex: 2 300px;
+}
+```
+
+<font color='red'>这里需要了解一下flex的缩写：</font>
+flexk可以指定三个缩写：
+
+- flex-grow（拉伸因子），无单位数
+- flex-shrink（收缩因子），无单位数
+- flex-basis（初始大小），有单位数
+
+其中第二个收缩因子在正常情况下极少使用，它只有在容器溢出的时候才会用到。所以通常flex的值是单值（flex-grow或flex-basis）或者双值（flex-grow+flex-basis）
+
+#### 5.3.2 控制主次轴盒子排列
+
+1. justify-content：控制主轴上的盒子排列，取值包括：
+    - flex-start：flex项首
+    - flex-end：flex项末尾
+    - center：居中
+    - space-around：在flex项中均匀排列（与flex边框有距离）
+    - space-between：在flex项均匀排列（紧贴flex边框）
+2. align-items：控制次轴上的盒子排列，取值包括：
+    - stretch：拉伸至充满父容器
+    - center：居中
+    - flex-start：flex次轴首
+    - flex-end：flex次轴尾
+
+3. align-slef：用于控制特定元素在父盒子中的次轴排列（覆盖align-items）
+
+这个是原图
+![align-self1](./pic/45.png)
+
+```css
+/* 通过改变第三个按钮元素的align-slef来覆盖原本设置
+好的次轴方向 */
+button:nth-child(3) {
+    background-color: red;
+    align-self: flex-end;
+}
+```
+
+![align-self2](./pic/46.png)
+
+#### 5.3.3 flex项排序
+
+order属性通过值来控制flex项的排列顺序，默认每个flex项的order是0，值越大（可取负值），优先级越低：
+
+```css
+/* 这里我们改变1和5的位置，通过order属性来实现 */
+button:first-child {
+    order: 1;
+}
+button:last-child {
+    order: -1;
+}
+```
+
+![order](./pic/47.png)
+
+#### 5.3.3 flex嵌套
+
+嵌套的弹性盒子往往用来设计较为复杂的页面，下面是一个例子：
+![order](./pic/48.png)
+
+页面结构大概是：
+
+```css
+section - article
+          article
+          article - div - button
+                    div   button
+                    div   button
+                          button
+                          button
+```
 
 ### 5.4 网格布局
+
+一个网格系统包含行、列，以及每列之间的间隙（称为gutter）
+
+![网格系统](./pic/49.png)
+
+网格框架的创建是基于**浮动**创建的，其中12列网格是最常见的。下面是使用基本的CSS元素去实现网格系统，目的是为了探索网格系统背后的原理。
+
+#### 5.4.1 简单网格创建
+
+练习在[这里](test8.html)
+
+#### 5.4.2 流体网格创建
+
+通过将固定的宽度转化为百分比来实现，并设置一定的偏移量。
+练习在[这里](test9.html)
+
+局域float的网格的缺点是它是一维的，列元素只能跨多个列，不能跨多个行。
+
+#### 5.4.3 第三方网格系统
+
+市面上已经有很多CSS网格框架，比如Bootstrap、Skeleton。这里使用后者作为这小节的[练习](test11.html)
+
+#### 5.4.4 本地网格布局
+
+大部分浏览器已经内置了网格布局，我们可以直接通过设置display: grid来使用本地网格布局。我们先创建一个html，里面包括16个块，将这些块放到网格布局中：
+
+```html
+<div class="wrapper">
+  <div class="col">1</div>
+  <div class="col">2</div>
+  <div class="col">3</div>
+  <div class="col">4</div>
+  <div class="col">5</div>
+  <div class="col">6</div>
+  <div class="col">7</div>
+  <div class="col">8</div>
+  <div class="col">9</div>
+  <div class="col">10</div>
+  <div class="col">11</div>
+  <div class="col">12</div>
+  <div class="col">13</div>
+  <div class="col span6">14</div>
+  <div class="col span3">15</div>
+  <div class="col span2">16</div>
+</div>
+```
+
+```css
+.wrapper {
+    width: 90%;
+    max-width: 960px;
+    /* 设置width、margin:0 auto == 水平居中 */
+    margin: 0 auto;
+    display: grid;
+    /* grid-template-columns代表网格的列，repeat()表示重复函数，相当于12个1fr的缩写
+    这里的含义：创建12列等宽的网格 */
+    grid-template-columns: repeat(12, 1fr);
+    /* 网格元素间隙20px */
+    grid-gap: 20px;
+}
+.col {
+    background: rgb(255, 150, 150);
+}
+```
+
+fr是fragment的简写，是网格布局的专用尺度（相当于flex的flex-grow）
+
+![网格布局1](./pic/50.png)
+
+想让一个单元格跨多列，使用grid-column：
+
+```css
+.span2 {
+    grid-column: auto / span 2;
+}
+.span3 {
+    grid-column: auto / span 3;
+}
+.span6 {
+    grid-column: auto / span 6;
+}
+```
+
+CSS网格是二维的，因此随着布局的伸缩，元素保持原有排列，将html中第二行元素内容进行换行操作，时单元格“一格多行”：
+
+```html
+<div class="col">13some<br>content</div>
+<div class="col span6">14this<br>is<br>more<br>content</div>
+<div class="col span3">15this<br>is<br>less</div>
+<div class="col span2">16</div>
+```
+
+![网格布局2](./pic/51.png)
+
+<font color='red'>列的高度调整为与最高的容器一样高，所以一切都保持整洁。</font>
+
+上面的grid-column除了可以按照 auto / span i这么写来跨**i**行，也可以使用更简便的方式，并且网格元素还可以使用grid-row去跨越多列，**这是网格布局的灵活之处**：
+
+```css
+.content {
+    /* 从第2行跨越到第8行之前--这个之前非常重要！！！
+    意思是不包含第8行！！！ */
+    grid-column: 2 / 8;
+    /* 同理，从第3列跨越到第5列，也就是说包含第3、4列 */
+    grid-row: 3 / 5;
+}
+```
+
+具体练习看[这里](test13.html)
+
+![练习结果](./pic/52.png)
+
+将表格改变成网格布局的练习在[这里](test14.html)
 
 ### 5.5 浮动
 
