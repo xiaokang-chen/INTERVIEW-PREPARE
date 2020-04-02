@@ -1,14 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>js test 1</title>
-        <meta lang="utf-8">
-        <script>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <link rel="stylesheet" href="">
+    <script type="text/javascript">
+        function myAlert(){
+            alert("你好啊");
+        }
+        window.onload = function(){
+            // 在页面渲染后立即执行，如果不加，会导致在元素还没渲染
+            // 完就已经开始执行函数，从而找不到元素
+            document.getElementById('demo').onclick = function(){
+                alert('hello')
+            }
 
-        </script>
-    </head>
+            // 绑定监听事件
+            document.getElementById("myBtn").addEventListener("click", myFunction);
+        }
+        function myFunction(){
+            alert("hello!!!");
+        }
+    </script>
+</head>
+<body>
+    <p id="info">123</p>
+    <p>E-mail: <input type="text" id="email" name="email"></p>
+    <p>Name: <input type="text" id="name" name="name"></p>
+    <p>Age: <input type="text" id="age" name="age"></p>
 
-    <body>
+    <!-- <input type="button" onclick="myAlert()" value="点击我" /> -->
 
-    </body>
+    <input type="button" id="demo" value="js添加onclik" />
+
+    <button id="myBtn">绑定监听事件</button>
+
+    <script src="test.js" type="text/javascript"></script>
+
+</body>
 </html>

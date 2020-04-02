@@ -210,7 +210,187 @@ Promise有以下几种状态：
 
 ### 1.4 循环与迭代
 
+js提供了以下方式用来循环：
 
+- for
+- do...while
+- while
+- for...in
+- for...of
+其中还有labeled、break、continue语句用来辅助控制循环。
+
+#### 1.4.1 for
+
+for语句是最简单的循环控制语句。包括了初始化表达式（let i = 0）、条件表达式（i<nums.length）、运算表达式（i++）。
+
+```js
+for(let i = 0; i < nums.length; i++){
+    ...
+}
+```
+
+#### 1.4.2 do...while
+
+do...while语句一直重复直到条件表达式为false：
+
+```js
+let i = 3;
+do{
+    ...
+    i--;
+}while(i > 0)
+```
+
+语句会先执行do内的语句，再去判断while条件。所以do...while至少可以执行一次。
+
+#### 1.4.3 while
+
+while是for循环的一个变种，也和do...while类似，只不过是先判断条件，再去执行语句。
+
+```js
+let i = 3;
+while(i > 0){
+    ...
+    i--;
+}
+```
+
+#### 1.4.4 label、break、continue
+
+label可以标记一个循环，之后用break、continue来指出程序是否停止或继续循环。
+
+```js
+markLoop:
+    while(true){
+        ...
+    }
+```
+
+上面的markLoop就标记了一个循环。下面举个例子来演示一下label的用法：
+
+```js
+let num = 0;
+for(let i = 0; i < 10; i++){
+    for(let j = 0; j < 10; j++){
+        if(i === 5 && j === 5){
+            //break默认终止的循环是当前break语句的直接上
+            //层循环，所以在i和j等于5之后，j的循环结束，
+            // 外层i的循环从6继续
+            break;
+        }
+        num++;
+    }
+}
+// 输出95（0加到99一共100个数，56到60这5个数没加上）
+console.log(num);
+```
+
+```js
+let num = 0;
+// label
+outPonit:
+    for(let i = 0; i < 10; i++){
+        for(let j = 0; j < 10; j++){
+            if(i === 5 && j === 5){
+                // break后加上中断区域，在符合条件时，直接中断
+                // 外层循环，直接返回（此时i和j都等于55）
+                break outPonit;
+            }
+            num++;
+        }
+    }
+// 输出为55（0加到54一共55）
+console.log(num);
+```
+
+```js
+let i = 0;
+let j = 0;
+while(i < 5){
+    i++;
+    if(i === 3){
+        // 当i等于3的时候，终止当前循环，继续下次循环，
+        // 所以最后输出的时候少输出一个数。
+        continue;
+    }
+    n += i;
+    console.log(n);
+}
+// 输出1, 3, 7, 12
+```
+
+```js
+// 检查22 21 12 11这四个数
+let i = 2;
+checkiandj:
+    while(i > 0){
+        let j = 2;
+        let sum = 0;
+        checkj:
+            while(j > 0){
+                sum = 10*i + j;
+                j -= 1;
+                // 22
+                // 由于查到12的时候，满足条件，直接从外层循环中
+                // 跳出，所以就进不到数字为11的循环判断了
+                if((sum % 3) == 0){
+                    i -= 1;
+                    continue checkiandj;
+                }
+
+                // 22 11
+                // 等同于continue，直接跳出代码块的剩余部分
+                // 到下次循环（内层）继续执行
+                // if((sum % 3) == 0){
+                //     continue checkj;
+                // }
+                console.log(sum + '不能被三整除');
+            }
+        i -= 1;
+    }
+```
+
+#### 1.4.5 for...in
+
+for...in以**任意顺序**遍历一个对象的除Symbol以外的可枚举属性（包括原型链上的，如果不想遍历原型链属性，则加上hasOwnProperty判断）。主要用于遍历对象，<font color='red'>而不太适合遍历数组（因为对于数组来说，遍历顺序很重要）</font>。
+
+```js
+let obj = {"1":1, "2":2, "3":3};
+function Person(name) {
+    this.name = name;
+}
+Person.prototype = obj;
+let person = new Person('xiaoming');
+for(let key in person){
+    console.log(person[key]);
+}
+// 输出xiaoming,1,2,3,
+
+// 遍历中去除原型链属性
+for(let key in person){
+    if(person.hasOwnProperty(key)){
+        console.log(person[key]);
+    }
+}
+// 输出为xiaoming
+```
+
+#### 1.4.6 for...of
+
+for...of用于可迭代对象（String、Array、Map、Set等）的循环。对象不属于可迭代对象，不能使用for...of循环。
+
+```js
+let arr = [1,2,3];
+// 因为js中数组也是对象（键为数字的对象），
+// 所以也可以通过对象的方式进行赋值
+arr.foo = "hello"
+
+for(let item of foo){
+    console.log(item);
+}
+// 输出结果为1,2,3。只会遍历数组元素，数组中自己定义的
+// 对象元素不会显示
+```
 
 ### 1.5 函数
 
@@ -295,7 +475,7 @@ function Person(){
 4）当使用call、apply、bind绑定时，this指向绑定对象
 
 二、箭头函数中this：
-1）与上下文的函数对象中this指向一致，上下文中没有函数对象，则指向window。
+1）与上下文的函数对象（外层函数）中this指向一致，上下文中没有函数对象，则指向window。
 2）call、apply、bind无法改变箭头函数中this指向
 
 #### 1.5.3 几个预定义函数
@@ -307,6 +487,76 @@ function Person(){
 - parseInt()
 解析字符串，返回一个整数
 ![几个预定义函数](./pic/19.png)
+
+#### 1.5.4 闭包（重要）
+
+js允许函数嵌套，内部的函数除了可以访问自己定义的变量和函数，还可以访问外部函数所能访问到的所有变量和函数。<font color='red'>当内部函数以某一种方式被外部函数作用域访问时（常见外部函数return内部函数），一个闭包就产生了</font>
+
+```js
+let Func = function(name){
+    let getName = function(){
+        return name;
+    }
+    return getName;
+}
+let myPet = Func('dog');
+// myPet是一个函数，即主函数return的getName
+sizeof myPet;
+// 由于getName可以访问外部函数属性，所以name被返回
+myPet();
+```
+
+<font color='red'>闭包的使用场景</font>
+
+1、setTimeout传参
+
+```js
+// 原生setTimeout的处理函数中不能带有参数
+setTimeout(function(param){
+    console.log(param);
+}, 1000)
+
+// 可以通过闭包实现传承那
+function func(param){
+    return function(){
+        console.log(param);
+    }
+}
+let f = func(1);
+setTimeout(f, 1000);
+```
+
+2、为节点绑定循环click事件
+
+```html
+<p id="info">123</p>
+    <p>E-mail: <input type="text" id="email" name="email"></p>
+    <p>Name: <input type="text" id="name" name="name"></p>
+    <p>Age: <input type="text" id="age" name="age"></p>
+```
+
+```js
+function showContent(content){
+    document.getElementById('info').innerHTML = content;
+};
+
+function setContent(){
+    var infoArr = [
+        {'id':'email','content':'your email address'},
+        {'id':'name','content':'your name'},
+        {'id':'age','content':'your age'}
+    ];
+    for (var i = 0; i < infoArr.length; i++) {
+        var item = infoArr[i];
+        document.getElementById(item.id).onfocus = function(){
+            showContent(item.content)
+        }
+    }
+}
+setContent();
+```
+
+循环中创建了三个闭包，他们的词法环境都是item。但是当onfocus执行时，item.content才确定，但是循环早已结束，三个闭包的content参数都指向数组中最后一个（'your age'）。
 
 ### 1.6 表达式和运算符
 
