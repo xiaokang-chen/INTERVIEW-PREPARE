@@ -396,7 +396,9 @@ for(let item of foo){
 
 #### 1.5.1 this的用法
 
-在箭头函数之前，每一个新函数都重新定义了自己的this值。
+this代表**当前执行代码的环境对象**。在非严格模式下，总是指向一个对象，；在严格模式下可以是任何值。
+
+在全局中，this指向globalThis（全局对象）。这个属性在浏览器中代表window，在node中代表global。
 
 ```js
 function Person(){
@@ -413,6 +415,8 @@ function Person(){
 在ES5中，通过把this的值赋给一个变量来修复这个问题：
 
 ```js
+// 将Person内的this赋值给一个self变量
+// 其他地方再用self时，其实就是用的Person内的this
 function Person(){
     // Some choose 'that' instead of 'self'
     let self = this;
@@ -429,6 +433,7 @@ function Person(){
 或者可以使用箭头函数来确定this指向
 
 ```js
+// 箭头函数的this与其父函数（setInterval）的this相同-指向Person
 function Person(){
     this.age = 0;
 
@@ -556,7 +561,115 @@ function setContent(){
 setContent();
 ```
 
-循环中创建了三个闭包，他们的词法环境都是item。但是当onfocus执行时，item.content才确定，但是循环早已结束，三个闭包的content参数都指向数组中最后一个（'your age'）。
+循环中创建了三个闭包，他们的词法环境都是item。在onfocus动作发生之前，只是将函数进行绑定，而并没有执行。但是当onfocus触发时，循环早已结束，执行回调函数时，函数的item.content参数都指向数组中最后一个（'your age'）。
+上述的绑定明显不是我们想要得到的结构。所以这里有两种方法解决DOM元素循环绑定事件的问题：
+
+- 使用ES6的let，避免声明提前，作用域只在当前块内
+
+```js
+for (var i = 0; i < infoArr.length; i++) {
+        let item = infoArr[i];
+        document.getElementById(item.id).onfocus = function(){
+            showContent(item.content)
+        }
+}
+```
+
+- 将绑定事件放到**函数工厂**中，为函数的每一次回调都创建一个新的环境（每一次循环到会将item.content放到callBack中，但是不执行document... = content）
+
+```js
+function callBack(content){
+    return function(){
+        document.getElementById('info').innerHTML = content;
+    }
+}
+for (var i = 0; i < infoArr.length; i++) {
+        var item = infoArr[i];
+        document.getElementById(item.id).onfocus = callBack(item.content);
+}
+```
+
+- 绑定事件放到立即执行函数中
+
+```js
+for(let i = 0; i < infoArr.length; i++){
+    (
+        function(){
+            var item = infoArr[i];
+            document.getElementById(item.id).onfocus = function(){
+                showContent(item.content);
+            }
+        }
+    )();    // 放到立即执行函数上，每次循环得到的item.content值会立刻绑定到事件上
+}
+```
+
+<font color='red'>这里需要注意一下立即执行函数：</font>声明一个匿名函数，并立即调用的函数，称为**立即执行函数**。
+
+```js
+// 写法1
+(
+    function(){
+        ...
+    }
+)();
+
+// 写法2
+(
+    function(){
+
+    }()
+)
+```
+
+#### 1.5.5 arguments对象
+
+函数的传参是会被保存到一个类似数组的arguments对象中，这一点，对于我们来说是透明的。我们可以使用arguments对象来获取我们传入到函数中的变量。
+
+```js
+// 其中separator永远等于第一个参数，它等同于arguments[0]
+function myConcat(separator){
+    let result = '';
+    let i;
+    for(i = 1; i < arguments.length; i++){
+        result += arguments[i] + separator;
+    }
+    return result;
+}
+
+// 输出："red.green.blue"
+myConcat(".", "red", "green", "blue");
+```
+
+注意：arguments只是**类数组对象**，它并没有数组的全部方法。此外argumnets与显式参数的关系如下：
+![argumnets与显式参数的关系](./pic/39.png)
+
+#### 1.5.7 函数参数
+
+ES6之后，函数有两个类型的参数：默认参数、剩余参数
+
+1、默认参数
+
+```js
+// 使用默认参数，就不需要在函数体中进行undefined判断了
+function multiply(a, b = 1){
+    return a*b;
+}
+// 返回5，b已经被赋默认值1
+multiply(5);
+```
+
+2、剩余参数
+剩余参数允许将不确定数量的参数表示为**数组**。
+
+```js
+function multiply(multiplier, ...args){
+    return args.map(x => multiplier * x);
+}
+
+// [2,4,6]
+console.log(multiply(2, 1, 2, 3));
+```
 
 ### 1.6 表达式和运算符
 

@@ -26,7 +26,7 @@
 // 55 35 34 25
 
 function showContent(content){
-    document.getElementById('info').innerHTML = content;
+    return document.getElementById('info').innerHTML = content;
 };
 
 function setContent(){
@@ -40,11 +40,28 @@ function setContent(){
         {'id':'age','content':'your age'}
     ];
     for (var i = 0; i < infoArr.length; i++) {
-        var item = infoArr[i];
+        // 放到立即执行函数中
+        // (function(){
+        //     var item = infoArr[i];
+        //     document.getElementById(item.id).onfocus = function(){
+        //         showContent(item.content);
+        //     }
+        // })()
+
+        // 放到函数工厂中
+        // let item = infoArr[i];
+        // document.getElementById(item.id).onfocus = callBack(item.content);
+
+        // 直接放到闭包中
+        let item = infoArr[i];
         document.getElementById(item.id).onfocus = function(){
-            showContent(item.content)
+            showContent(item.content);
+        }
+    }
+    function callBack(content){
+        return function(){
+            document.getElementById('info').innerHTML = content;
         }
     }
 }
 setContent()
-console.log(222)
