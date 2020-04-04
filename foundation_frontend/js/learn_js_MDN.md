@@ -197,7 +197,7 @@ finally: 无论异常与否都会执行
 根据抛出的错误类型，可以用'name'和'message'获取错误的详细信息。
 ![try...catch](./pic/38.png)
 
-### 1.3.5 Promises
+#### 1.3.5 Promises
 
 ES6增加了Promise对象，用来对异步流程进行控制
 Promise有以下几种状态：
@@ -624,7 +624,7 @@ for(let i = 0; i < infoArr.length; i++){
 
 #### 1.5.5 arguments对象
 
-函数的传参是会被保存到一个类似数组的arguments对象中，这一点，对于我们来说是透明的。我们可以使用arguments对象来获取我们传入到函数中的变量。
+函数的传参是会被保存到一个类似数组的arguments对象中，这一点，对于我们来说是透明的。我们可以在函数内使用arguments对象来获取我们传入到函数中的变量。
 
 ```js
 // 其中separator永远等于第一个参数，它等同于arguments[0]
@@ -673,9 +673,393 @@ console.log(multiply(2, 1, 2, 3));
 
 ### 1.6 表达式和运算符
 
+#### 1.6.1 运算符
+
+1. 赋值运算符：x=y、x+=y、x>>=y...
+复杂赋值-**解构**
+
+    ```js
+    let foo = ["one", "two", "three"]
+    let [one, two, three] = foo;
+    ```
+
+2. 比较运算符：>=、===、!=、!==...
+
+    ```js
+    // 严格相等在相等的基础上加上了类型检查
+    3 != '3'    // false，3与'3'操作数相等
+    3 !== '3'   // true，3与'3'类型不同
+    ```
+
+3. 算数运算符：+、%、++、**（指数）...
+
+    ```js
+    // 与java等语言不同，除法返回结果是小数，而非整数
+    1 / 2   //0.5
+    1.0 / 3.0 === 1.0 / 3.0  // true
+    2**3    // 8
+    ```
+
+4. 位运算符：&、~、^（异或）、>>（算数右移）、>>>（无符号右移）...
+
+    ```js
+    // 9:1001   15:1111
+    9 >> 2  // 2    1001带符号（正补0）右移两位变为0010
+    // 100...1111（首位符号位）无符号（补0）右移两位变为111...1100
+    -15 >>> 2   // 1073741820
+    ```
+
+5. 逻辑运算符：&&、||、!
+6. 字符串运算符：+、+=
+
+    ```js
+    "my " + "string";  // "my string"
+    let myString = "hel";
+    myString += "lo";   // "hello"
+    ```
+
+7. 条件（三元）运算符：condition ? value1 : value2
+
+    ```js
+    let status = (age >= 18) ? "adult" : "minor";
+    ```
+
+8. 逗号运算符：
+
+    ```js
+    var x = [1,2,3,4,5]
+    var a = [x, x, x, x, x];
+
+    for (var i = 0, j = 4; j >= 0; i++, j--)
+    console.log('a[' + i + '][' + j + ']= ' + a[i][j]);
+    // 输出二维矩阵a的斜对角线元素
+    // a[0][4] = 5 ... a[4][0] = 1
+    ```
+
+9. 一元运算符：delete、typeof、void
+
+    ```js
+    // delete删除数组元素
+    let colors = ["red", "green", "blue"];
+    delete colors[1];
+    // 删除数组元素后，对应位置为空，但是数组整体长度不变
+    colors  // ["red", empty, "blue"];
+    colors.length   // 3
+    1 in colors  // false
+
+    // 如果想使对应索引还在colors中，对其赋值undefined即可
+    colors[1] = undefined;
+    1 in colors   // true
+    ```
+
+    ```js
+    // typeof返回操作数的类型
+    typeof Date;    // function
+    typeof Math;    // object
+    typeof null;    // object
+    typeof undefined;   // undefined
+    ```
+
+    ```html
+    <!-- void表示运算没有返回值 -->
+    <a href="javascript:void(0)">Click</a>
+    ```
+
+10. 关系运算符：
+
+关系运算符对操作进行比较，返回相应的布尔类型。
+
+```js
+// in操作符判断指定的属性是否存在于所指定的对象
+let colors = new Array("red", "green", "blue");
+1 in colors   // true   索引1在数组中
+3 in colors   // false  索引3不在数组中
+'red' in colors    // false  in前的属性应指定为数组的索引（键）
+
+let animal = {type: 'dog', year: 2015};
+'type' in animal    // true   type在animal中
+'sex' in animal     // false   sex不在animal中
+```
+
+```js
+// instanceof判断对象是否是所指定的类型
+let date = new Date();
+date instanceof Date;
+// 值得注意的是，如果a对象的构造函数A继承自B构造函数。a instanceof B将判别为true
+```
+
+#### 1.6.2 表达式
+
+表达式包括this、new、super、扩展所引领的语句
+
+1、this
+this关键字指代当前对象，this在函数章节已详细介绍，这里介绍this改变。
+注意：改变this指向有**call、apply、bind**三个函数：
+
+利用call来改变this指向：
+![call改变this指向](./pic/45.png)
+
+三者区别：
+call：function.call(this, arg1, arg2)   return函数的立即调用
+apply：function.apply(this, [arg1, arg2])   return函数的立即调用
+bind：function.bind(this)   return函数的拷贝，以便稍后调用
+
+<font color='blue'>一些需要注意的地方：</font>
+首先创建一个Person类，并创建一个实例化对象p1：
+![call改变this指向](./pic/46.png)
+
+1. call方法和apply的唯一区别在于其接受的第二个参数。apply接受的是**参数数组**，而call接受的是**参数列表**；此外bind也只接受**参数列表**
+2. bind返回的是函数的拷贝，所以最后比call和apply多一个()
+![call改变this指向](./pic/47.png)
+3. 多次bind是无效的，这是因为bind的实现，相当于使用函数在内部包含了一个apply/call。
+
+2、new
+new用来创建一个自定义或预置类型的对象实例。
+
+```js
+let num = new Number()  // 预置类型
+let person = new Person()   // 自定义类型（构造函数）
+```
+
+<font color='red'>new创建一个用户定义类型的对象实例会进行如下操作：</font>
+
+```js
+function Person(name, sex){
+    this.name = name;
+    this.sex = sex;
+    this.getInfo = function(){
+        console.log(this.name + ':' + this.sex);
+    }
+}
+let person1 = new Person('xiaoming', 'male');
+```
+
+- 创建一个空的js对象（即{}）
+
+    ```js
+        let person1 = {};
+    ```
+
+- 设置继承关系：设置新对象的__proto__属性指向构造函数的prototype对象（将空对象继承自构造函数的原型对象）
+
+    ```js
+        person1 .__proto__ =  Person.prototype;
+    ```
+
+- 绑定this：将新创建的对象作为this的上下文
+
+    ```js
+        Person.call(person1)
+    ```
+
+- 变量初始化：将要给对象初始化的值赋给对象中对应变量
+
+    ```js
+        person1.name = 'xiaoming';
+        person1.sex = 'male';
+    ```
+
+全部代码：
+
+```js
+function objectFactory(){
+  var obj = new Object();
+  // 取参数中第一个
+  var Constructor = [].shift.call(arguments);
+  obj.__proto__ = Constructor.prototype;
+  //  ret是在构造函数有返回值时，等于其返回值
+  // 1. 构造函数返回对象时，实例中只能访问返回的对象
+  // 2. 构造函数返回基本类型时，相当于没返回
+  var ret = Constructor.apply(obj, arguments);
+  return typeof ret === 'object' ? ret || obj : obj;
+}
+```
+
+下面图文来观察new对象的**步骤**：
+通过new的方式创建对象person1：
+![new对象的过程1](./pic/40.png)
+通过细化操作创建对象person2：
+![new对象的过程2](./pic/41.png)
+可以看到两种方式创建结果相同：
+![new对象的过程3](./pic/42.png)
+
+3、super
+super关键字用于调用一个对象的父对象上的函数。
+语法：
+1）调用 父对象/父类 的构造函数
+super([arguments]);
+在调用父对象构造函数前，<font color='red'>super必须在使用关键字this之前</font>
+2）调用 父对象/父类 的方法
+super.functionOnParent([arguments]);
+![super](./pic/43.png)
+可以看到：
+![super](./pic/44.png)
+
+4、扩展语句
+扩展语句通常用在函数调用中，等同于apply：
+
+```js
+function myFunc(x, y, z){}
+let args = [0, 1, 2];
+// 相当于在没有改变this指向的前提下，传递了变量数组
+myFunc.apply(null, args)
+```
+
+上面的写法很不方便，可以用扩展语句来写：
+
+```js
+myFunc(...args)
+```
+
+值得注意的是...与Object.assign一样，都是**浅拷贝**，只能拷贝属性值，而无法拷贝对象引用：
+
+![扩展语句](./pic/48.png)
+
 ### 1.7 数字与日期
 
+#### 1.7.1 数字
+
+在js中，数字均为双精度浮点类型。二进制用0b表示；十六进制用0x表示；多0的数用指数表示。
+
+```js
+0b101   // 5
+0x10    // 16
+2e3     // 2000
+```
+
+#### 1.7.2 数字对象
+
+JS有很多内置数字对象：
+
+```js
+Number.MAX_VALUE    // 最大值
+Number.MIN_VALUE    // 最小值
+Number.NaN      // 非数字，等于NaN
+// **-------整数数字在以下范围内是准确的-------**
+Number.MAX_SAFE_INTEGER     // 最大安全数字
+Number.MIN_SAFE_INTEGER     // 最小安全数字
+// **----------------------------------------**
+Number.POSITIVE_INFINITY    // 正无穷，等于Infinity
+Number.NEGATIVE_INFINITY   // 负无穷，等于-Infinity
+
+Math.PI     // π
+Math.E      // e
+```
+
+还有常用的一些内置函数
+
+```js
+Number.parseInt()   // 字符串解析成整型
+Number.isSafeInteger()    // 判断传递的值是否为安全数
+
+// **----------------Math方法------------**
+Math.floor(a)    // 将小数向下取整
+Math.ceil(a)     // 将小数向上取整
+Math.pow(a, b)  // 返回a的b次方幂  
+Math.sqrt(a)     // 返回a的平方根
+Math.round(a)   // 对a进行四舍五入
+Math.trunc(a)   // 将a的小数点去掉，保留整数部分
+```
+
+#### 1.7.3 日期对象
+
+基于日期Date的实例，是呈现时间中的某个时刻。Date对象是基于Unix Time Stamp（1970年1月1往后算毫秒）
+
+Date()构造函数有4种基本形式。
+
+1. 没有参数
+
+    ```js
+    // 新创建的now代表对象实例化时刻的时间
+    let now = new Date();
+    now     // Sat Apr 04 2020 22:24:59 GMT+0800 (中国标准时间)
+    ```
+
+2. Unix时间戳
+
+    ```js
+    // 新创建一个以时间戳作为参数的时间对象
+    let time = new Date(1000000000000)
+    time     // Sun Sep 09 2001 09:46:40 GMT+0800 (中国标准时间)
+    ```
+
+3. 时间戳字符串（不推荐！！！存在浏览器差异）
+
+    ```js
+    // 传入符合标准（能被Date.parse()正确识别）的字符串
+    let time = new Date('01 01 2020')
+    time    // Wed Jan 01 2020 00:00:00 GMT+0800 (中国标准时间)
+    ```
+
+4. 具体日期+时间
+具体时间+日期的形式应该为：
+<font color='red'>new Date(**year, monthIndex**[, day [, hours [, minutes [, seconds [, milliseconds]]]]])</font>
+
+    ```js
+    // 年和月的索引（0-11）是必选参数，其余是可选
+    let date = new Date(2020, 0)
+    date    // Wed Jan 01 2020 00:00:00 GMT+0800 (中国标准时间)
+    ```
+
+日期对象还有一些方法，分为：
+
+- get：getDate()、getDay()...
+- set：setDate()、setMonth()...
+- to：toJSON()...
+- parse：parse()、now()...
+
 ### 1.8 文本格式化
+
+#### 1.8.1 字符串字面量
+
+```js
+'foo'
+// \x之后的被认为是一个16进制数转义序列
+'\xA9'      // "©"
+// \u之后的被认为是一个unicode转义序列
+'\u00A9'    // "©"
+```
+
+#### 1.8.2 字符串对象
+
+```js
+let s = new String("foo");
+s   // String {"foo"}
+typeof s    // 'object'
+```
+
+在String字面量上可以使用String对象的所有方法。由于String对象在有的时候执行与我们的直觉并不一样(如eval(new String("1+1")))，所以不建议用，直接用字面量就可以了。
+
+#### 1.8.3 字符串方法
+
+![String方法](./pic/49.png)
+
+#### 1.8.4 模板字符串
+
+1. 字符串多行
+
+    ```js
+    // 如果用引号，则必须加上换行符，行末尾还要加上结束符\
+    console.log("string line 1\n\
+    string line 2")
+
+    // 用反勾号``包裹的字符串直接换行，无需多余操作
+    console.log(`string line 1
+    string line 2`)
+    ```
+
+2. 嵌入表达式
+
+    ```js
+    let a = 5;
+    let b = 10;
+    // 使用引号，则需要通过加号来连接字符串和数字计算值
+    console.log
+    ("Fifteen is " + (a + b) + " and\nnot " + (2*a+b) + '.')
+
+    // 使用反勾号可以直接将变量和计算放到${}中
+    console.log(`Fifteen is ${a+b} and\nnot ${2*a+b}.`)
+    ```
 
 ### 1.9 索引集合
 
