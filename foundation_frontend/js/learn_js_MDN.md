@@ -1063,7 +1063,184 @@ typeof s    // 'object'
 
 ### 1.9 索引集合
 
+索引集合即以索引进行排序的数据集合，包括数组以及类数组结构。
+
+#### 1.9.1 数组对象
+
+创建数组可以通过Array对象或者数组字面量[]来创建。
+
+```js
+// 以下均创建了一个包含1 2 3三个数字的数组
+let arr1 = new Array(1,2,3);
+let arr2 = [1,2,3]
+
+// 当数组对象中只有一个数字类型参数时，代表数组长度
+let arr = new Array(3);     // (3) [empty × 3]
+
+let arr3 = new Array("3")   // ["3"]
+```
+
+#### 1.9.2 数组填充
+
+数组可以看成是一个键为数字（0~length-1）的对象，数组的键没有要求必须是数字，所以类似于对象的赋值也是可以的。
+
+```js
+let arr = [];
+arr[0] = 1;
+arr[1] = '1';
+arr['pi'] = 3.14;
+
+arr     // (2) [1, "1", 2.5: 2.5, pi: 3.14]
+arr.length      // 2，对象方式赋值不作为数组内的元素，只作为对象的属性
+
+// arr中默认是empty，代表空；如果给数组元素赋undefined，也会占位
+arr = [];
+arr.length;     // 0
+arr[0] = undefined;
+arr.length      // 1
+```
+
+#### 1.9.3 数组遍历
+
+```js
+let colors = ['red', 'green', 'blue'];
+
+// 第一种方法：使用for循环（或while）
+for(let i = 0: i < colors.length; i++){
+    ...
+}
+// 第二种方法：使用foreach()
+colors.forEach(function(color){
+    ...
+})
+// 第三种方法：使用for...of
+for(let item of colors){
+    ...
+}
+```
+
+<font color='red'>注意：不要使用for...in遍历数组。因为for...in是用来遍历对象的，遍历数组的话会将数组中的所有键（在非索引集合的元素也会遍历）都遍历出来</font>
+
+#### 1.9.4 类数组对象
+
+像document.getElementByTagName()返回的NodeList或者函数内部的arguments对象，它们表面看起来像数组，但是却没有数组的一些属性和方法。可以通过Array的原生方法去处理这些对象：
+
+```js
+function printArguments() {
+    Array.prototype.forEach.call(arguments, function(item){
+        console.log(item);
+    })
+}
+```
+
+arguments不是数组，所以无法直接用forEach：
+![类数组对象1](./pic/50.png)
+通过Array的prototype（原型）方法可以处理arguments：
+![类数组对象2](./pic/51.png)
+
+#### 1.9.5 二进制数组-ArrayBuffer
+
+ArrayBuffer对象、TypedArray视图、DataView视图是js用来操作二进制数据的一套接口。很多API都使用了二进制数组来操作二进制数据，包括File、XMLHttpRequest、Fetch、Websockets、Canvas等。
+<font color='red'>需要注意的是：二进制数组与arguments一样，也是类数组对象，不是真正的数组。</font>
+
+- ArrayBuffer对象
+代表内存中的一段二进制数据，**不能直接操作**，可以通过视图进行操作。视图实现了数组接口，所以，可以使用数组的方法操作内存。
+- TypedArray视图
+包括9种类型视图，如Int16Array（16位整数）、Unit8Array（无符号8位整数）、Float32Array（32位浮点数）等。
+- DataView视图
+根据TypedArray基本视图进行自定义组合。比如第一个字节是8位整数，第二个事16位浮点数...
+
+总的来说：<font color='red'>ArrayBuffer用来表示原始的二进制数据；TypedArray用来读写简单类型的二进制数据，DataView用来读写复杂类型的二进制数据</font>
+
+下面简单写一个例子：
+
+![二进制数组](./pic/52.png)
+
 ### 1.10 带键集合
+
+#### 1.10.1 Map
+
+Map是一个存储键值对的集合，可以**按照数据插入的顺序遍历所有元素**。
+
+```js
+let person = new Map();
+person.set('name', 'xiaoming');
+person.set('sex', 'male');
+person.set('age', 20);
+
+person.get('age');      // 20
+person.has('habit');    // false
+person.delete('name')   // true
+person.size;        // 2
+
+// 用for...of遍历Map对象
+for(let [key, value] of person){
+    console.log(key + ":" + value);
+}
+//   sex:male
+//   age:20
+
+person.clear();     // 清空
+```
+
+Map和Object很像，但是相较于Object来说有更多的优势：
+
+1. Object的键均为String类型，Map的键可以是任意类型。
+2. Object的大小没有属性可以直接获得，需要手动去算，而Map直接使用size属性获得
+3. 在遍历Map时是有序的（按照插入Map的顺序）
+
+特别在需要将原始值存储为键的时候（比如数字为键），**必须用Map**。因为Object的键只能存储字符串。
+
+<font color='red'>WeakMap对象（ES6）：</font>
+WeakMap 对象是一组键/值对的集合，其中的键是弱引用的。其键必须是**对象**。
+
+具体内容以后再研究。
+
+#### 1.10.2 Set
+
+Set是值不重复的集合，和数组“类似”。
+
+```js
+let set = new Set();
+set.add(1);
+set.add('foo');
+set.add(2);
+
+set.delete('foo')   //true
+set.size    // 2
+
+for(let item of set){
+    console.log(item);
+}
+// 1
+// 2
+
+set.clear();    // 清除
+```
+
+<font color='red'>Set和Array的转换：</font>
+
+1. Set => Array
+使用Array.from或者展开操作符（...）来将Set转换为Array
+
+    ```js
+    let set = new Set();
+    set.add(1);
+    set.add(2);
+    set.add(3);
+
+    let arr1 = Array.from(set);     // (3) [1, 2, 3]
+    let arr2 = [...set];    // (3) [1, 2, 3]
+    ```
+
+2. Array => Set
+将数组对象作为参数放到Set的构造器中来将Array转换为Set
+
+    ```js
+    let arr = new Array(1,2,2,3);   // arr = [1,2,2,3]
+    let set = new Set(arr);
+    set     // Set(3) {1, 2, 3}
+    ```
 
 ### 1.11 处理对象
 
@@ -1085,7 +1262,7 @@ js的设计是一个简单的基于对象的范式。一个对象是一系列属
 
 ![赋值结果](./pic/obj2.png)
 
-如果是点赋值的属性，在访问的时候，直接[对象.键]即可；如果是类数组赋值方式，**取值**的时候可以通过  对象[变量]  的方式或者  对象.变量值  的方式。如果后续改变变量的值，那么  对象[变量]这种访问方式就会被破话，取值会变成undefined：
+如果是点赋值的属性，在访问的时候，直接[对象.键]即可；如果是类数组赋值方式，**取值**的时候可以通过  对象[变量]  的方式或者  对象.变量值  的方式。如果后续改变变量的值，那么  对象[变量]这种访问方式就会被破坏，取值会变成undefined：
 
 ![取值](./pic/obj3.png)
 
@@ -1108,7 +1285,7 @@ ES5之后，有3种原生方法：
 
 #### 1.11.4 创建类的方法
 
-类也是对象，只不过通常类里面有函数：
+类也是对象（语法糖）：
 1）对象初始化器
 ![对象8](./pic/27.png)
 <font color='red'>2）通过构造函数</font>
@@ -1116,10 +1293,11 @@ ES5之后，有3种原生方法：
 通过构造函数创建对象（new），创建的对象是将属性添加到自身实例下的
 3）通过Object.create()---es6语法
 ![对象7](./pic/26.png)
-通过Object.create(proto, [propertiesObject])创建的对象是通过继承原对象实现的，即新对象的属性是在原型（\_\_proto__）之下的：
+通过Object.create(proto, [propertiesObject])创建的对象是通过继承原对象实现的，**而无需定义构造函数**。即将新对象的原型（\_\_proto__）设置为原对象：
 ![Object.create()](./pic/proto.png)
 <font color='red'>4）es6的class</font>
 ![对象9](./pic/class.png)
+注意：上面的run是Car的原型方法。在es5中，如果Car是构造函数，那么等同于Car.prototype.run = function(){console.log('...')}
 
 #### 1.11.5 继承
 
@@ -1181,8 +1359,15 @@ Person.call(one, 'js');
 最终：
 ![new](./pic/36.png)
 
-那么constructor又是什么呢？
-<!-- TODO -->
+#### 1.11.6 getters与setters
+
+一个getter用于获取特定属性值，而一个setter用于设置特定属性的值。
+
+需要注意，<font color='red'>getter和setter后面虽然跟着类似函数的形式，但是它们却不是函数</font>，而是**属性**。如下图，o.a是一个数字属性；o.b是一个getter，它返回一个数字（o.a+1），可以称之为可读；o.c是一个setter，它设置o.a的值，可以称之为可写（单纯调用o.c是undefined）。
+![getter和setter](./pic/53.png)
+
+对于已经创建好的对象，如果想向其添加getter和setter，可以通过Object.defineProperties(object, properties)
+![Object.defineProperties()](./pic/54.png)
 
 ### 1.12 对象模型的细节
 
