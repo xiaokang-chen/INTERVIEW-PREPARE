@@ -1371,7 +1371,226 @@ Person.call(one, 'js');
 
 ### 1.12 对象模型的细节
 
+js是基于原型的语言而非基于类的语言， 理解这一点非常重要！！！
+
+- 基于类的语言：java、c++等
+一个类定义了某一对象集合的特征属性（比如动物类），类是抽象的；而一个实例是一个类的具体化，比如猫，代表一个动物类的特定个体。实例具有和类**完全一致**的属性，不多也不少。
+- 基于原型的语言：js
+只有对象的概念。基于原型的语言有**原型对象**的概念。原型对象作为一个模板，新对象可以从中获取到属性，也可以定义自己的属性，既可以在创建的时候定义也可以在运行的时候定义。
+
+<font color='red'>在js中，不像基于类的语言，有专门的类定义（Class不是类定义，只是构造函数的语法糖！！！），而是使用构造函数来创建一系列有着特定初始值和方法的对象。</font>
+
+#### 1.12.1 书写继承关系
+
+这一小节通过代码实现下述类和类的关系：
+
+![继承关系1](./pic/55.png)
+
+下面是实现代码：
+
+1. 创建Employee、Manager、WorkerBee（通过组合继承）
+![继承关系2](./pic/56.png)
+2. 创建SalesPerson、Engineer，并定义五个类的对象
+![继承关系3](./pic/57.png)
+3. 可以看到对象的属性值符合我们的预期，实现了继承。
+![继承关系3](./pic/58.png)
+
+上面提到了组合继承，这种继承方式是集<font color='red'>借助构造函数实现继承（Parent.call(this)</font>和<font color='red'>借助原型链实现继承（Child.prototype = new Parent()</font>组合而成。它解决了这两个继承各自出现的问题：
+
+- 借助构造函数实现继承
+![借助构造函数实现继承](./pic/59.png)
+可以看到这种方式实现的继承，**子类无法调用到父类原型链上的属性和方法**。
+- 借助原型链实现继承
+![借助原型链实现继承1](./pic/60.png)
+可以看到这种方式解决了子类无法调用父类原型链上的属性和方法的问题，但是这种方式也有新的问题：
+![借助原型链实现继承2](./pic/61.png)
+所以，使用这种方法，解决了原型链调用问题，但是**当我们通过子类实例去修改父类上的属性和方法，所有的子类实例对象上的属性和方法都会跟着改变**。
+
+<font color='blue'>所以通过组合的方式来实现继承：</font>
+![借助组合方式实现继承](./pic/62.png)
+
+其实这里还有一个问题，就是constructor指向问题，设置一下即可：
+
+```js
+// 确保实例化对象可以通过constructor找到自己的构造函数
+Parent.prototype.constructor = Parent;
+Child.prototype.constructor = Child;
+```
+
+#### 1.12.2 一些其他问题
+
+1. js继承是没有多继承的，它只能在一条原型链上添加继承。
+2. 在构造函数中引入全局变量时，需要注意一些不太明显的调用构造函数。
+
 ### 1.13 Promises
+
+Promise是一个对象，它代表了一个异步操作的最终完成或失败。不同于“老式”的函数传参回调，使用Promise时，会有以下约定：
+
+- 在本轮事件循环运行完成之前，回调函数是不会被调用的。
+- 异步操作完成后，这之后通过then添加的回调函数继续被调用。
+- then()可以多次添加，支持**链式调用**。
+
+#### 1.13.1 链式调用
+
+连续执行两个以上的异步操作（函数），上一个执行完之后再执行下一个，并且后边的操作带着上一个操作返回的结果。
+
+```js
+const promise = doSomething();  // doSomething是某个异步函数
+const promise2 = promise.then(successCallback, failureCallback);
+```
+
+promise2代表了doSomething()的完成，也代表传入的successCallback或者failureCallback函数的完成。每一个promise都代表了调用链上另一个异步操作的完成。
+&emsp;&emsp;没有promise之前，多重调用可以会出现**回调地狱**：
+
+```js
+doSomething(function(result) {
+    doSomethingElse(result, function(newResult) {
+        doThirdThing(newResult, function(finalResult){
+            conosle.log('The final result: ' + finalResult);
+        }, failureCallback)
+    }, failureCallback)
+}, failureCallback)
+```
+
+现在可以通过Promise链：
+
+```js
+doSomething().then(function(result){
+    return doSomethingElse(result);
+})
+.then(function(newResult){
+    return doThirdThing(newResult);
+})
+.then(function(finalResult){
+    console.log('The final result: ' + finalResult);
+})
+.catch(failureCallback);
+```
+
+使用箭头函数更一步简化
+
+```js
+doSomething()
+.then(result => doSomethingElse())
+.then(newResult => doThirdThing())
+.then(finalResult => {
+    console.log('The final result: ' + finalResult);
+})
+.catch(failureCallback);
+```
+
+需要注意，catch并不一定是链式调用的结尾，其后面依然可以跟着then():
+
+```js
+new Promise((resolve, reject) => {
+    console.log('初始化');
+    resolve();
+})
+.then(() => {
+    throw new Error('有哪里不对了');
+    console.log('执行这个');
+})
+.catch(() => {
+    console.log('执行那个');
+})
+.then(() => {
+    console.log("无论前面发生什么都执行");
+})
+```
+
+执行结果：
+![链式调用](./pic/63.png)
+
+#### 1.13.2 错误传递
+
+在前面的回调地狱中，一共调用了三次回调失败函数；而promise链式调用，只需要在尾部调用一次。promise在遇到异常时，会顺着promise链寻找下一个onRejected失败回调函数或者是.catch()指定的回调函数。这一点，和同步代码很像：
+
+```js
+// 其中sync代表函数必须得是同步函数
+try{
+    let result = syncDoSomething();
+    let newResult = syncDoSomethingElse(result);
+    let finalResult = syncDoThirdThing(newResult);
+    console.log('Get the final result: ' + finalResult);
+}catch(error){
+    failureCallback(error);
+}
+```
+
+```js
+// 如果是异步函数，需要同步执行，则使用async/await语法
+async function foo(){
+    try{
+        let result = await doSomething();
+        let newResult = await doSomethingElse(result);
+        let finalResult = await doThirdThing(newResult);
+        console.log('Get the final result: ' + finalResult);
+    }catch(error){
+        console.log(error);
+    }
+}
+```
+
+#### 1.13.3 Promise组合
+
+Promise的方法包括resolve()、reject()、all()、race()。
+
+- resolve：返回一个成功状态的Promise对象
+
+```js
+// 创建一个成功态的Promise对象，并在then中返回它(then会获取resolve的值)
+let a = Promise.resolve('success');
+let b = a.then(function(){
+    console.log("成功了");
+}, function(){
+    console.log("失败了")
+})
+```
+
+![resolve](./pic/64.png);
+
+- reject：返回一个失败状态的Promise对象
+
+```js
+// 创建一个失败态的Promise对象，并在then中返回它
+let c = Promise.reject('failure');
+let d = c.then(function(){
+    console.log("成功了");
+}, function(){
+    console.log("失败了")
+})
+```
+
+![reject](./pic/65.png);
+
+- all：对多个promise对象的状态进行判断。如果全都是成功态，则返回resolve，否则返回reject，失败时，返回第一个失败的Promise的原因。
+
+![all](./pic/66.png);
+
+- race：参数为多个promise。对多个promise进行“竞速”，返回最先处理完的promise对象（不管成功或失败）
+
+```js
+let p1 = new Promise(function(resolve, reject){
+    setTimeout(resolve, 200)
+});
+let p2 = new Promise(function(resolve, reject){
+    setTimeout(reject, 100)
+});
+let p = Promise.race([p1,p2]);      // reject
+
+
+let p3 = new Promise(function(resolve, reject){
+    setTimeout(resolve, 300)
+});
+let p4 = new Promise(function(resolve, reject){
+    setTimeout(reject, 500)
+});
+let q = Promise.race([p3,p4]);      // resolve
+```
+
+![race](./pic/67.png);
+
+#### 1.13.4 Promise时序问题
 
 ### 1.14 迭代器与生成器
 

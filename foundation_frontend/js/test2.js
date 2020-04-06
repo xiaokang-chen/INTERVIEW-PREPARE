@@ -20,14 +20,39 @@ function objectFactory(){
 //     }
 // }
 
-function Person(name, sex){
-    this.name = name;
-    this.sex = sex;
-    return {age: 18}
-}
-Person.prototype.say = function(word){
-    console.log("hello" + word);
-}
+// function Person(name, sex){
+//     this.name = name;
+//     this.sex = sex;
+//     return {age: 18}
+// }
+// Person.prototype.say = function(word){
+//     console.log("hello" + word);
+// }
 
 // let p = new Person('xiaoming', 'male');
-let q = objectFactory(Person, "xiaoming", "male");
+// let q = objectFactory(Person, "xiaoming", "male");
+
+function Employee(name, dept) {
+    this.name = name || "";
+    this.dept = dept || "general";
+}
+
+function WorkerBee(name, dept, projs) {
+    this.base = Employee;
+    this.base(name, dept);
+    this.projects = projs || [];
+}
+WorkerBee.prototype = new Employee;
+
+function Engineer(name, projs, mach) {
+    this.base = WorkerBee;
+    this.base(name, "engineer", projs);
+    this.machine = mach || "";
+}
+Engineer.prototype = new WorkerBee;
+
+let jane = new Engineer("Doe, Jane", ["navigator", "javascript"], "belau");
+console.log("name: "+ jane.name)
+console.log("dept: "+ jane.dept)
+console.log("projects: "+ jane.projects)
+console.log("machine: "+ jane.machine)
