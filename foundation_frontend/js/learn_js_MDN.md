@@ -1592,7 +1592,117 @@ let q = Promise.race([p3,p4]);      // resolve
 
 #### 1.13.4 Promise时序问题
 
+Promise是一个微任务。其构造函数接收一个执行函数（executor），构造函数创建时，**立即调用执行函数**。如下：
+
+```js
+new Promise(function(resolve, reject){
+    // 等待2毫秒之后再放到宏队列中
+    setTimeout(function(){
+        console.log(1)
+    }, 2)
+    console.log(2);
+    resolve(3);
+}).then(function(value){
+    console.log(value);
+})
+// 不用等待时间，直接放到宏队列中
+setTimeout(function(){
+    console.log(4)
+})
+console.log(5)
+```
+
+![Promise时序问题](./pic/68.png)
+
+#### 1.13.5 Promise嵌套
+
+嵌套Promise会导致代码复杂化，会因为粗心导致错误。所以建议Promise“扁平化”编程。
+
+```js
+doSomethingCritical()
+.then(
+    // 嵌套promise
+    result => doSomethingOptional()
+        .then(optionalResult => doSomethingExtraNice(optionalResult))
+        .catch(e => { console.log(e) })
+    )
+    .then(() => moreCriticalStuff())
+    .catch(e => console.log("Critical failure: " + e.message));
+```
+
+值得注意的是上述的内层catch只能捕获到doSomethingOptional和doSomethingExtraNice的失败，之后的then中的moreCriticalStuff会继续执行。而外层的catch只会捕获到dosomethingCritical和moreCriticalStuff的失败。
+
+可以看到，这种嵌套会使得逻辑很复杂，难以判断。会出现以下**常见错误**：
+
+```js
+// 错误示例
+doSomething().then(
+    function(result){
+        doSomethingElse(result)
+            .then(newResult => doThirdThing(newResult));
+    }
+).then(() => doFourthThing());
+```
+
+该嵌套promise有三个错误：
+
+- 第一个错误是没有正确的将函数连接，**then()创建了新的Promise却没有返回**。这会导致doFourthThing和doSomethingElse是两个独立的promise链条，他们会并行运行。<font color='red'>注意：() => x是() => { return x; }的缩写；而() => {x}是没有返回的</font>
+![第一个错误](./pic/69.png)
+- 第二个错误是不必要的嵌套，导致了第一个错误。
+- 第三个错误是在Promise链上没有catch语句去捕获异常
+
+修改成“扁平化”代码后：
+
+```js
+doSomething()
+.then(function(result){
+    return doSomethingElse(result);
+})
+.then(newResult => doThirdThing(newResult))
+.then(() => doFourthThing())
+.catch(error => console.log(error));
+```
+
 ### 1.14 迭代器与生成器
+
+处理集合中的每一项是很常见的操作，比如map()、filter()v、for...of、展开语法等。
+迭代方式（语法或方法）都遵循[迭代协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)。可迭代对象包括：String、Array、TypesArray、Set、Map，他们的原型都实现了**@@iterator方法**。
+
+#### 1.14.1 迭代器
+
+迭代器是一个特殊对象，所有迭代对象都有一个next()方法，用来返回一个对象结果，这个对象结果包含两个属性：vlue：返回的值；done：布尔类型，表示后面是否还有值。迭代器内部保存了一个指针，指向当前迭代对象的爹地啊位置，迭代对象只能迭代一次。
+
+创建一个迭代器：
+
+```js
+function createIterator(items){
+    let i = 0;
+    return {
+        next: function(){
+            let done = (i >= items.length);
+            let value = !done ? items[i++] : undefined;
+            return {
+                done: done,
+                value: value
+            };
+        }
+    };
+}
+```
+
+![迭代器](./pic/70.png)
+
+#### 1.14.2 生成器
+
+ES6推出了更为强大的生成器（generator）。它允许你自定义一个迭代算法函数，并且它可以自己自动的维护状态。生成器函数用**function**\*来定义。第一次调用方法时，会返回一个Generator对象（生成器），随后使用next()去调用生成器对象以遍历可迭代对象。
+
+![生成器](./pic/71.png)
+
+<font color='red'>每个生成器对象只会迭代一次，如果想多次迭代，只能多次调用生成器函数赋给对象进行调用。</font>
+
+#### 1.14.3 可迭代对象
+
+
 
 ### 1.15 元编程
 
