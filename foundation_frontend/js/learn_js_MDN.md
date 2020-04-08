@@ -516,12 +516,12 @@ myPet();
 1、setTimeout传参
 
 ```js
-// 原生setTimeout的处理函数中不能带有参数
+// IE9之前原生setTimeout的处理函数中不能带有额外参数，以下在IE中会出错
 setTimeout(function(param){
     console.log(param);
 }, 1000)
 
-// 可以通过闭包实现传承那
+// 可以通过闭包实现传参
 function func(param){
     return function(){
         console.log(param);
@@ -531,7 +531,7 @@ let f = func(1);
 setTimeout(f, 1000);
 ```
 
-2、为节点绑定循环click事件
+<p id="jump2">2、为节点绑定循环click事件</p>
 
 ```html
 <p id="info">123</p>
@@ -561,7 +561,7 @@ function setContent(){
 setContent();
 ```
 
-循环中创建了三个闭包，他们的词法环境都是item。在onfocus动作发生之前，只是将函数进行绑定，而并没有执行。但是当onfocus触发时，循环早已结束，执行回调函数时，函数的item.content参数都指向数组中最后一个（'your age'）。
+循环中创建了三个闭包，他们的词法环境都是item。在onfocus动作发生之前，只是将函数进行绑定，而并没有执行。但是当onfocus触发时（异步操作在同步之后），循环早已结束，执行回调函数时，函数的item.content参数都指向数组中最后一个（'your age'）。
 上述的绑定明显不是我们想要得到的结构。所以这里有两种方法解决DOM元素循环绑定事件的问题：
 
 - 使用ES6的let，避免声明提前，作用域只在当前块内
@@ -575,7 +575,7 @@ for (var i = 0; i < infoArr.length; i++) {
 }
 ```
 
-- 将绑定事件放到**函数工厂**中，为函数的每一次回调都创建一个新的环境（每一次循环到会将item.content放到callBack中，但是不执行document... = content）
+- 将绑定事件放到**函数工厂**（闭包）中，为函数的每一次回调都创建一个新的环境（每一次循环到会将item.content放到callBack中。
 
 ```js
 function callBack(content){
@@ -1382,7 +1382,7 @@ js是基于原型的语言而非基于类的语言， 理解这一点非常重�
 
 #### 1.12.1 书写继承关系
 
-这一小节通过代码实现下述类和类的关系：
+<p id="jump">这一小节通过代码实现下述类和类的关系：</p>
 
 ![继承关系1](./pic/55.png)
 
@@ -1712,16 +1712,412 @@ ES6推出了更为强大的生成器（generator）。它允许你自定义一�
 
 ### 2.1 客户端 Web API
 
-### 2.2
+### 2.2 重新介绍JS
+
+### 2.3 JS数据结构
+
+### 2.4 如何使用比较操作符
+
+### 2.5 闭包
+
+闭包可以让内部函数通过预先绑定好的词法环境去访问外部函数。在js中，每当函数被创建，就会在函数执行时生成闭包。
+
+#### 2.5.1 词法作用域
+
+词法作用域就是内部的函数可以访问外部函数的中声明的变量，但是反过来却不行。**嵌套函数可访问声明于他们外部作用域的变量**。
+
+#### 2.5.2 闭包
+
+**闭包**是由函数以及声明该函数的词法环境组合而成。
+
+```js
+function makeFunc(){
+    let name = 'Mozilla';
+    function displayName() {
+        console.log(name);
+    }
+    return displayName;
+}
+
+let myFunc = makeFunc();
+myFunc();
+```
+
+js中函数会形成闭包。在这个例子中，myFunc是执行makeFunc时创建的displayName函数实例的引用。displayName实例（因为主函数已经设定了特定的值，可能是预先设定，也可能是参数传入）维持了一个词法环境，这个环境中包括nam='Mozilla'。因此myFunc被调用时，displayName函数实例可以从词法环境中获取到父函数myFunc定义的name值。
+
+<font color='red'>当给主函数传入参数时：</font>
+
+```js
+function makeAdder(x) {
+    return function(y){
+        return x + y;
+    }
+}
+
+let add5 = makeAddr(5);     // add5是内层函数实例的一个引用，语法环境为x=5
+let add10 = makeAddr(10);   // add10语法环境为x=10
+
+console.log(addr5(2))  // 5 + 2 = 7
+console.log(addr10(2))  // 10 + 2 = 12
+```
+
+从本质上讲，makeAdder函数是一个**函数工厂**，它用于创建特定语法环境的函数。
+
+#### 2.5.3 实用的闭包
+
+闭包很有用，因为它将函数和函数内部所需的特定数据（环境）关联起来，这就类似于面向对象编程。如果**一个对象中只有一个方法，那么就可以使用闭包**。最常见的应用场景是<font color='red'>事件绑定</font>，闭包解决了其中异步操作（事件）作用域的问题，参考[第一章节](#jump2)：
+
+#### 2.5.4 用闭包模拟私有方法
+
+私有方法对于模块化具有重要意义，它可以防止全局的命名空间污染。
+
+```js
+// 用闭包实现一个数据隐藏和封装的计数器
+let makeCounter = function(){
+    let privateCounter = 0;
+    function changeBy(val) {
+        privateCounter += val;
+    }
+    return {
+        increment: function() {
+            changeBy(1);
+        },
+        decrement: function() {
+            changeBy(-1);
+        },
+        value: function() {
+            return privateCounter;
+        }
+    }
+}
+
+let Counter1 = makeCounter();   // Counter1创建了属于自己的词法环境，是返回的函数对象的实例
+let Counter2 = makeCounter();   // 与Counter1完全不同，且独立的词法环境
+
+console.log(Counter1.value())   // 0
+Counter.increment();
+Counter.increment();
+console.log(Counter1.value())   // 2
+Counter.decrement();
+console.log(Counter1.value())   // 1
+console.log(Counter2.value())   // 0
+```
+
+以这种方式使用闭包，可以提供面向对象编程的好处，包括数据隐藏（外层函数内的变量只供内层函数使用）和封装（功能模块化，比如本例模块化了一个计数器，它与外界高度解耦）。
+
+#### 2.5.4 循环中使用闭包
+
+在上面已经说过，循环中如果有异步操作，使用闭包的话，会导致作用域问题。
+
+#### 2.5.5 性能考量
+
+闭包都会增加额外处理速度和内存消耗。所以如果不是特定任务（比如循环绑定事件），尽量不要在函数中创建函数。这也是为什么给对象创建方法时，将方法写到构造函数的原型上：
+
+```js
+function MyObject(name) {
+    this.name = name;
+    this.getName = function(){
+        return this.name;
+    }
+}
+```
+
+在这里，没有用到闭包所带来的便利，因为变量name直接通过this获得了，不需要再去指定词法环境。所以标准的写法是将方法写到原型上：
+
+```js
+function MyObject(name) {
+    this.name = name;
+}
+// 直接在原型上添加属性，而不要破坏它
+// 不要直接MyObject.prototype = {...}
+// 这样会使得原本存在的constrcutor属性丢失
+MyObject.prototype.getName = function(){
+    return this.name;
+}
+```
 
 ## 三、高级
 
 ### 3.1 继承和原型链
+
+js在ES6引入了Class关键字，但它只是语法糖，并不是真正意义上类的实现，js仍然是基于原型的。
+谈到继承时，js只有对象结构，每个对象都有一个私有属性（\_\_proto\_\_）指向它的构造函数的原型对象（prototype）。该原型对象也有一个自己的原型对象（\_\_proto\_\_），层层向上直到一个对象的原型是null，null没有原型，作为**原型链**的最后一个环节。
+<font color='red'>几乎所有js中的对象都是位于原型链顶端的Object对象的实例</font>
+
+#### 3.1.1 基于原型链的继承
+
+1、继承属性
+
+```js
+function f(){
+    this.a = 1;
+    this.b = 2;
+}
+let o = new f();
+
+// 在构造函数f的原型上定义b和c
+f.prototype.b = 3;
+f.prototype.c = 4;
+
+//整个原型链如下
+// o {a:1, b:2} => o.__proto__ {b:3, c:4, constructor: f()} =>
+// o.__proto__.__proto__也就是Object.prototype => null
+
+o.a;    // 1    a是o的属性直接返回
+o.b;    // 2    b是o的属性直接返回（不再向上找原型对象的属性了，所以原型对象中的b被“屏蔽”）
+o.c;    // 4    c不是o的属性，继续向上找，o.__proto__中有属性c，直接返回
+o.d;    // undefined    c不是o的属性，随着继承链一直找到null也没找到，返回undefined
+```
+
+2、继承方法
+
+```js
+// 函数调用时，this指向调用对象
+let o = {
+    a: 1,
+    m: function(){
+        return this.a + 1;
+    }
+}
+
+o.m();      // 2
+let p = Object.create(o);
+p.__proto__ === o;      // p继承自o
+p.a = 2;
+p.m();      // 3   m函数中this指向p，所以此时this.a = 2
+```
+
+#### 3.1.2 在JS中使用原型
+
+```js
+function doSomething(){};
+```
+
+打印输出doSomething.prototype可以看到doSomething函数的原型对象是一个仅有constructor（代表该原型对象的构造函数，也就是doSomething自己）属性的“空对象”。
+
+![在JS中使用原型1](./pic/72.png)
+
+```js
+// 在构造函数原型上创建一个属性
+doSomething.prototype.foo = "bar";
+
+// 基于原型对象创建一个实例
+let doSome = new doSomething();
+doSome.foo1 = 'bar1';
+```
+
+![在JS中使用原型2](./pic/73.png)
+
+#### 3.1.3 使用不同的方法创建对象和原型链
+
+1. 使用语法结构
+
+    ```js
+    let o = {a: 1};
+    // 对象字面量方式，其实是let o = new Object({a:1})的缩写
+    // o继承了以Object为构造函数的原型对象（Object.prototype）上所有属性
+    // 原型链如下：
+    // o => Object.prototype => null
+
+    let a = [1,2,3];
+    // 数组字面量方式，其实是let a = new Array(1,2,3)的缩写
+    // a继承了Array.prototype，而Array.prototype又是由new Object()创建（即数组对象是基于Object的）
+    // 原型链如下：
+    // a => Array.prototype => Object.prototype => null
+
+    function f(){
+        return 0;
+    }
+    // 函数字面量方式是let f = function(){return 0;}的缩写
+    // 同理原型链如下：
+    // f => Function.prototype => Object.prototype => null
+    ```
+
+2. 使用构造器
+
+    ```js
+    function Fn(a){
+        this.a = a;
+        this.b = [];
+    }
+    Fn.prototype.Fn1 = function(x){
+        this.b.push(x);
+    }
+
+    let f = new Fn(1);
+    // f是实例化对象，它的属性有a和b，其中a=1，b=[]
+    // f从原型上继承了Fn1方法
+
+    f.Fn(6)     // 调用该方法，this指向f
+    f.b         // [6]  调用后改变了对象f中的属性b
+    ```
+
+3. 使用Object.create()
+
+    ```js
+    // Object.create()创建一个新对象，新对象的原型就是create方法传入的第一个参数
+    let a = {a: 1};
+    // a => Object.prototype => null
+
+    let b = Object.create(a);
+    // b => a => Object.prototype => null
+
+    let c = Object.create(b);
+    // c => b => a => Object.create() => null
+
+    let d = Object.create(null);
+    // d => null
+    console.log(d.hasOwnProperty);
+    // undefined，因为d没有继承Object.prototype
+    ```
+
+4. 使用class关键字
+
+    ```js
+    class Animal {
+        constructor(type, color){
+            this.type = type;
+            this.color = color;
+        }
+    }
+
+    class Dog extends Animal {
+        constructor(type, color, a){
+            super(type, color);
+            this.a = a;
+            this.b = 0;
+        }
+
+        get c() {
+            return this.a + this.b;
+        }
+        // 注意：set方法只能接受一个参数
+        set d(x) {
+            this.b = x*2;
+        }
+    }
+
+    let dog = new Dog('A', 'red', 1);
+    ```
+
+<font color='red'>性能问题：</font>
+在**原型链上遍历属性会比较耗时**，在对性能要求较高时这一点很重要（访问不存在的属性时会遍历整个原型链）。
+&emsp;&emsp;Object.keys()和hasOwnProperty()只会处理遍历当前对象的属性，而不会遍历整条原型链。除此之外的方法都会遍历原型链。
+
+![性能问题](./pic/74.png)
+
+PS: **还需要注意，检查属性是否为undefined不能够确定其是否存在。该属性可能存在，但其值恰好被设置为undefined。**<font color='red'>还要切忌扩展内置的原型，比如往Object.prototype上添加属性或方法。</font>
+上面几种继承各自的缺陷可以查看[书写继承关系](#jump)。
 
 ### 3.2 严格模式
 
 ### 3.3 JavaScript 类型数组
 
 ### 3.4 内存管理
+
+js在创建变量时自动进行了分配内存，并且在不使用他们时“自动”释放，释放的过程称为垃圾回收。
+
+#### 3.4.1 内存生命周期
+
+不管什么语言，内存的生命周期基本一致：
+
+1. 分配你所需要的内存
+2. 使用分配到的内存（读、写）
+3. 不需要时将其释放
+
+<font color='darkblack'>内存分配：</font>
+
+```js
+// 值的初始化会自动分配内存
+let a = 1;
+let o = {a:1, b:null}   // 给对象及其包含的值分配内存
+let arr = [1, null, 'a']    // 给数组及其包含的值分配内存
+
+// 通过函数调用分配内存
+let d = new Date();     // 分配一个Date对象（一直存在于内存）
+let e = document.createElement('div');  // 分配一个DOM元素（DOM元素是DOM树在内存的存在形式）
+
+// 基本类型相同的内容就分配一片内存，对象（引用类型）每次都分配新的内存
+let a = 1;
+let b = 1;
+a === b;    // true 1这个数在栈内存中只有一个
+let c = {num:1}
+let d = {num:1}
+c == d      // 引用对象会在堆内存中创建多个“相同”的对象量
+```
+
+![内存分配](./pic/75.png)
+需要注意的是**null**也是一个对象，但是其之所以能存在于栈内存中，是因为其大小固定，而堆内存中的object都是不固定大小的。
+
+<font color='darkblack'>使用分配内存：</font>
+使用内存分配的值是对分配内存写入或读取，比如算数运算、函数传值等。
+
+<font color='darkblack'>释放内存：</font>
+大部分内存管理的问题都出在这里。**开发人员需要确定哪些内存已经不再需要，然后进行释放**。高级语言解释器中已经嵌入了“垃圾回收器”（GC），但是回收的过程这是一个近似回收，因为要知道在后续操作中是否还需要某块内存是无法通过算法进行判定的。
+
+#### 3.4.2 垃圾回收
+
+垃圾回收算法是建立在**引用**概念上的，引用分为**隐式引用**（对象引用原型属性）和**显式引用**（对象引用自身属性）。
+
+<font color='red'>垃圾回收算法:</font>
+
+1. 引用计数垃圾收集
+这是最初的垃圾收集算法，判定一个对象是否释放的条件是它是否还被其他对象所引用。
+
+    ```js
+    // 创建两个对象（一个称为外层对象-赋给变量o，一个称为内层对象-赋给变量a）
+    // 内层对象作为外层对象的属性被引用
+    let o = {
+        a: {
+            b: 1;
+        }
+    }
+    // 创建一个变量o2，引用外层对象（此时外层对象有两个引用）
+    let o2 = o;
+
+    o = 1;  // 堆内存中的“外层对象”的原始引用a已经没了，现在只有o2还在引用
+    let oa = o2.a;  // 变量oa通过o2引用“内层对象”，内层对象现在有引用oa
+
+    o2 = "yo"   // 断开o2的引用，虽然外层对象此时是零引用，可以被垃圾回收
+                // 可是内层对象还存在着引用，所以无法回收
+
+    oa = null;  // 内层对象的引用被释放，两个对象都被回收（现在没有变量可以访问它们了）
+    ```
+
+    算法限制：在循环引用情况下，会出现问题
+
+    ```js
+    function f(){
+        // 他们相互至少有一次引用，所以计数法无法回收
+        let o = {}
+        let o2 = {}
+        o.a = o2;
+        o2.a = o;
+
+        return 0;
+    }
+    // 函数中的两个对象在函数调用后离开了函数作用域，这个时候他们就没用了，
+    // 本应该被回收，但是由于计数算法考虑到他们存在引用，所以不会回收它们。
+    f();
+    ```
+
+    在使用计数方式对DOM对象进行垃圾回收的时候，如果出现对象循环引用，就会导致**内存泄漏**。
+
+    ```js
+    let div;
+    window.onload = function(){
+        // myDivElement这个DOM元素中的circularReference引用了它本身，造成了循环引用
+        // 如果该引用么有设置为null，或者显式移除，引用就会一直保持在内存的DOM元素上
+        // 即使将DOM元素从DOM树删除，DOM元素的数据（对象下的大量属性）也不会被删除
+        // 这一点，就像上边第一个例子一样，引用（包括子对象的）不清零，数据就不会删除
+        div = document.getElemntById("myDivElement");
+        div.circularReference = div;
+    }
+    ```
+
+2. 标记-清除算法
+2012年起，所有浏览器用的垃圾回收算法全是基于**标记-清除算法**。零引用对象总是不可获得，但是不可获得的对象却不一定是零引用（循环引用）。这个算法解决了循环引用的问题。<font color='red'>它会从根对象（全局对象），找到所有根对象引用的对象，然后再找这些对象引用的对象...，从根开始，GC会找到所有可以获得的对象并收集**所有不可获得的对象（垃圾）**</font>
+
+在上边的函数例子中，函数调用返回之后，两个对象从根向下遍历获取不到，所以他们会被GC回收。而第二个例子，一旦div从根无法获取到，他们就会被GC回收。
 
 ### 3.5 并发模型以及事件循环
