@@ -23,6 +23,7 @@ let isSubtree = function(s, t){
     if(isSame(s, t)){
         return true;
     }
+    // 如果t不是s的子树结构，那么去t的左子树或右子树继续找与s匹配的结构
     return isSubtree(s.left, t) || isSubtree(s.right, t);
 }
 
