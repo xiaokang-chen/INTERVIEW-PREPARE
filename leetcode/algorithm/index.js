@@ -275,4 +275,80 @@ function merge(left, right){
     return result;
 }
 
-console.log(mergeSort(array));
+// console.log(mergeSort(array));
+
+/**
+ * 6. 快速排序
+ * @param {*} arr 
+ * @param {*} left 
+ * @param {*} right 
+ */
+function quickSort(arr, left=0, right=arr.length-1){
+    if(left < right){
+        let pivot = partition(arr, left, right);
+        quickSort(arr, left, pivot-1);
+        quickSort(arr, pivot+1, right);
+    }
+    return arr;
+}
+
+function partition(arr, left, right){
+    let pivot = arr[left];
+    while(left < right){
+        while(left < right && pivot < arr[right]){
+            right--;
+        }
+        arr[left] = arr[right];
+        while(left < right && arr[left] <= pivot){
+            left++;
+        }
+        arr[right] = arr[left];
+    }
+    arr[left] = pivot;
+    return left;
+}
+
+// console.log(quickSort(array2));
+
+/**
+ * 7. 堆排序
+ * @param {*} arr 
+ * @param {*} i 
+ * @param {*} len 
+ */
+function adjustHeap(arr, i, len){
+    let temp = arr[i];
+    for(let k = 2*i+1; k < len; k=2*k+1){
+        if(k+1 < len && arr[k+1] > arr[k]){
+            k++;
+        }
+        if(arr[k] > temp){
+            arr[i] = arr[k];
+            i = k;
+        }else{
+            break;
+        }
+    }
+    arr[i] = temp;
+}
+
+function swap(arr, i, j){
+    let temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+}
+
+function heapSort(arr){
+    // 从第一个非叶子节点开始建堆
+    for(let i = Math.floor(arr.length/2); i >= 0; i--){
+        adjustHeap(arr, i, arr.length);
+    }
+    // 调整堆(每一次堆根元素与堆尾元素交换)
+    for(let j = arr.length-1; j > 0; j--){
+        swap(arr, 0, j);
+        adjustHeap(arr, 0, j);
+    }
+    return arr;
+}
+
+console.log(heapSort(array2));
