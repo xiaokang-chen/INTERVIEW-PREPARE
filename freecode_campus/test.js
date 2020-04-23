@@ -1,17 +1,5 @@
-function fiboEvenSum(n) {
-  // You can do it!
-  if(n < 2){
-    return 0; 
-  }
-  let sum = 2;
-  let nums = [1, 2];
-  while(nums[1] < n){
-    [nums[0], nums[1]] = [nums[1], nums[0]+nums[1]];
-    if(nums[1]%2 === 0){
-        sum += nums[1];
-    }
-  }
-  return sum;
+function largestOfFour(arr){
+  return arr.map(Function.apply.bind(Math.max, null));
 }
 
-console.log(fiboEvenSum(10));
+console.log(largestOfFour([[17, 23, 25, 12], [25, 7, 34, 48], [4, -10, 18, 21], [-72, -3, -17, -10]]));
