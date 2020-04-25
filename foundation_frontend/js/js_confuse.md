@@ -110,6 +110,55 @@ function deepClone(p, c){
 }
 ```
 
+单个参数：
+
+```js
+function deepcopy(obj){
+    //  将对象的特殊情况进行处理
+    if(obj === null) return null;
+    if(obj instanceof RegExp) return new RegExp(obj);
+    if(obj instanceof Date) return new Date(obj);
+
+    if(typeof obj !== object){
+        return obj;
+    }
+
+    let newObj = new obj.constructor();
+    for(let key in obj){
+        newObj[key] = deepcopy(obj[key]);
+    }
+    return newObj;
+}
+```
+
+<font color='red'>这里没将array和object严格区分，不太严谨。但是在正常的数组
+（不含自定义属性-对象定义、不对循环key进行计算）传入时是没有问题的</font>
+
+```js
+function deepcopy(obj){
+  // 对基本类型进行处理
+  if(typeof obj !== 'object'){
+      return obj;
+  }
+  // 将对象的特殊情况进行处理
+  if(obj === null) return null;
+  if(obj instanceof RegExp) return new RegExp(obj);
+  if(obj instanceof Date) return new Date(obj);
+  // 区分{}和array
+  let newObj = obj.constructor === Array ? [] : {};
+  if(obj.constructor === Array){
+      for(let i = 0; i < obj.length; i++){
+        newObj[i] = deepcopy(obj[i]);
+      }
+  }else{
+      for(let key in obj){
+        newObj[key] = deepcopy(obj[key]);
+      }
+  }
+  return newObj;
+}
+```
+
 3、node下使用库函数（lodash）
 _cloneDeep(obj)
 
