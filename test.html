@@ -1,48 +1,80 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-    <head>
-        <title>test</title>
-        <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
-        <style>
-            body {
-                margin: 0;
-                /* font-size: 30px; */
+<head>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style type="text/css">
+        #videoHolder {
+            width: 100%;
+            height: 300px;
+            background-color: red;
+        }
+        #one {
+            width: 100%;
+            height: 500px;
+            background-color: blue;
+        }
+        #two {
+            width: 100%;
+            height: 500px;
+            background-color: yellow;
+        }
+    </style>
+    <script>
+        // 图片完全出现在浏览器视图时加载视频
+        function loadingVedio() {
+            let viewHeight = $(window).height(); // 浏览器窗口高度
+            let scrollTop = $(window).scrollTop();    // 页面滚动的高度
+            let elementTop = $("#videoHolder").offset().top; // 元素距离文档（document）顶部的高度
+            if(viewHeight + scrollTop > elementTop) {
+                console.log("到了");
             }
-            .btn {
-                position: absolute;
-                margin: auto;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                padding: .3em .8em;
-                border: 1px solid rgba(0,0,0,.1);;
-                background: #c00 linear-gradient(hsla(0,0%,100%,.2), transparent);
-                border-radius: .2em;
-                box-shadow: 0 .05em .25em rgba(0,0,0,.5);;
-                color: white;
-                text-shadow: 0 -.05em .05em rgba(0,0,0,.5);;
-                font-size: 125%;
-                line-height: 1.5;
+        }
+       function throttle(func, delay){
+            let valid = true;
+            return function() {
+                if(!valid){
+                    return false;
+                }
+                // 工作时间，执行函数并且在间隔期内把状态位设为无效
+                valid = false;
+                setTimeout(() => {
+                    func()
+                    valid = true;
+                }, delay);
             }
-            /* .btn1 {
-                position: absolute;
-                margin: auto;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                padding: .3em .8em;
-                border: 1px solid #446d88;
-                background: #c00 linear-gradient(#bf0000, #c00);
-                border-radius: .2em;
-                box-shadow: 0 .05em .25em gray;
-                color: white;
-                text-shadow: 0 -.05em .05em #335166;
-                font-size: 125%;
-                line-height: 1.5;
-            } */
-        </style>
-    </head>
-    <body>
-        <button class="btn">Click Me!</button>
-    </body>
+        }
+        $(window).scroll(throttle(loadingVedio, 1000)); // 添加防抖
+    </script>
+</head>
+
+<body>
+    <div id="one"></div>
+    <div id="two"></div>
+    <div id="videoHolder"></div>
+</body>
+</html> -->
+
+<html>
+
+<head>
+    <style>
+        div {
+            background-color: gray;
+            height: 50px;
+            width: 50px;
+        }
+        img {
+            width: 16px;
+            height: 16px;
+            background: url('/static/common/phone.svg');
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <img />
+    </div>
+</body>
+
 </html>

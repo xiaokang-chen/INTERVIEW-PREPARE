@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      .container {
+        width: 200px;
+        height: 100px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        background-color: blanchedalmond;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .svg {
+        height: 30px;
+        width: 30px;
+        background: url("./pic/phone.svg") center center no-repeat;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <img class="svg" />
+      <!-- 方法1：写到span中 -->
+      <!-- <span class="svg"></span> -->
+
+      <!-- 方法2：img中设置一个空的src -->
+      <span>文字部分</span>
+    </div>
+  </body>
+</html>
