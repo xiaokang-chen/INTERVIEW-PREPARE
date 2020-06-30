@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CSS3无限滚动</title>
+    <style type="text/css">
+      .container {
+        display: flex;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 100px;
+        overflow: hidden;
+        background-color: red;
+      }
+      .item:first-child {
+        background-color: pink;
+      }
+      .item {
+        flex: none;
+        width: 200px;
+        height: 100%;
+        background-color: pink;
+        animation: slide 5s linear infinite normal;
+      }
+
+      @keyframes slide {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(-200px, 0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="item">
+        <span>123</span>
+        <span>456</span>
+        <span>789</span>
+      </div>
+      <div class="item">
+        <span>123</span>
+        <span>456</span>
+        <span>789</span>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,78 +1,18 @@
-<!-- <!DOCTYPE html>
-<html>
-
-<head>
-    <style type="text/css">
-        .btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 178px;
-            height: 40px;
-            padding: 11px 17px;
-            text-align: center;
-            color: blue;
-            background: #fff;
-            cursor: pointer;
-            border-radius: 4px;
-            border: 1px solid rgba(223, 226, 235, 1);
-        }
-
-        .btn:after,
-        .btn:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 0;
-            height: 100%;
-            /* background: blue; */
-            z-index: -2;
-            border-radius: 4px;
-        }
-
-        .btn:hover {
-            z-index: 1;
-            background: transparent;
-        }
-
-        .btn:before {
-            transition: .3s;
-            background: #3784FF;
-            z-index: -1;
-        }
-
-        .btn:hover:after,
-        .btn:hover:before {
-            width: 100%;
-        }
-    </style>
-</head>
-
-<body>
-    <button class="btn">
-        <span class="left-icon phone-icon" />
-        <span class="phone">400-101-6133</span>
-    </button>
-</body>
-
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>CSS3无限滚动</title>
     <style type="text/css">
-      @-webkit-keyframes rowup {
+      /* @-webkit-keyframes rowup {
         0% {
           -webkit-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
         }
 
         100% {
-          -webkit-transform: translate3d(0, -312px, 0);
-          transform: translate3d(0, -312px, 0);
+          -webkit-transform: translate3d(0, -220px, 0);
+          transform: translate3d(0, -220px, 0);
         }
       }
 
@@ -83,10 +23,10 @@
         }
 
         100% {
-          -webkit-transform: translate3d(0, -312px, 0);
-          transform: translate3d(0, -312px, 0);
+          -webkit-transform: translate3d(0, -220px, 0);
+          transform: translate3d(0, -220px, 0);
         }
-      }
+      } */
 
       .list {
         width: 400px;
@@ -102,12 +42,50 @@
         animation: 10s rowup linear infinite normal;
         position: relative;
       }
+      .ss {
+        display: inline-block;
+      }
     </style>
   </head>
 
   <body>
     <div class="list">
-      <div class="cc"></div>
+      <div class="cc rowup">
+        <div class="ss">
+          <div class="item">
+            0-
+            日孤城闭。浊酒一杯家万里，燕然未勒归无计。羌管悠悠霜满地，人不寐，将军白发征夫泪。
+          </div>
+          <div class="item">
+            1- 然未勒归无计。羌管悠悠霜满地，人不寐，将军白发征夫泪。
+          </div>
+          <div class="item">
+            2- ，燕然未勒归无计。羌管悠悠霜满地，人不寐，将军白发征夫泪。
+          </div>
+          <div class="item">3- 下秋来风景异，衡阳雁去无留意。</div>
+          <div class="item">
+            4- 里，长烟落日孤城闭。浊酒一杯家万里，燕然未勒归无计
+          </div>
+          <div class="item">5- dhsjhdbej</div>
+        </div>
+        <div class="ss">
+          <div class="item">
+            0-
+            日孤城闭。浊酒一杯家万里，燕然未勒归无计。羌管悠悠霜满地，人不寐，将军白发征夫泪。
+          </div>
+          <div class="item">
+            1- 然未勒归无计。羌管悠悠霜满地，人不寐，将军白发征夫泪。
+          </div>
+          <div class="item">
+            2- ，燕然未勒归无计。羌管悠悠霜满地，人不寐，将军白发征夫泪。
+          </div>
+          <div class="item">3- 下秋来风景异，衡阳雁去无留意。</div>
+          <div class="item">
+            4- 里，长烟落日孤城闭。浊酒一杯家万里，燕然未勒归无计
+          </div>
+          <div class="item">5- dhsjhdbej</div>
+        </div>
+      </div>
     </div>
   </body>
   <script type="text/javascript">
@@ -160,6 +138,6 @@
       addKeyFrames("-" + height + "px"); // 设置keyframes
       document.querySelector(".list .cc").className += " rowup"; // 添加 rowup
     }
-    init();
+    // init();
   </script>
 </html>
