@@ -1,0 +1,18 @@
+{
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/q6.html"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/test.js",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
