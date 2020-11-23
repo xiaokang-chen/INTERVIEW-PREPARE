@@ -3,101 +3,52 @@
   <head>
     <style>
       body {
-        /* color: aqua; */
-        background: green;
+        background: url("http://pic.58pic.com/58pic/13/17/92/22P58PICYyR_1024.jpg")
+          center center / cover no-repeat fixed;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
       }
-      .center {
-        position: relative;
-        width: 50%;
-        color: red;
-        background-color: yellow;
+
+      .content {
+        height: 400px;
+        width: 600px;
+        word-break: break-all;
+        z-index: 10;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -200px;
+        margin-left: -300px;
+        overflow: hidden;
       }
-      .center::before {
+
+      .content:before {
         content: "";
+        background: url("http://pic.58pic.com/58pic/13/17/92/22P58PICYyR_1024.jpg")
+          center center / cover no-repeat fixed;
+        filter: blur(20px);
         position: absolute;
-        top: -0.4em;
-        left: 1em;
-        padding: 0.35em;
-        background: inherit;
-        border: inherit;
-        border-right: 0;
-        border-bottom: 0;
-        transform: rotate(45deg);
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: -1;
+        margin: -30px;
       }
-      hr {
-        height: 10px;
-        background-color: currentColor;
-      }
-      .three {
-        height: 10px;
-        background-color: currentColor;
-      }
-      ul {
-        --accent-color: purple;
-      }
-      ol {
-        --accent-color: rebeccapurple;
-      }
-      li {
-        background: var(--accent-color);
-      }
-      .translucent {
-        width: 100px;
-        height: 100px;
-        border: 10px solid hsla(0, 0%, 100%, 0.5);
-        background: white;
-        background-clip: padding-box;
-      }
-      .multi-border {
-        position: absolute;
-        left: 40%;
-        margin-top: 20px;
-        width: 100px;
-        height: 100px;
-        background: yellowgreen;
-        box-shadow: 0 0 0 10px #655, 0 0 0 15px deeppink,
-          5px 5px 10px 15px rgba(0, 0, 0, 0.6);
-      }
-      .multi-border2 {
-        margin-top: 20px;
-        width: 100px;
-        height: 100px;
-        background: #655;
-        outline: 1px dashed white;
-        outline-offset: -10px;
-      }
-      .multi-border3 {
-        margin-top: 30px;
-        width: 100px;
-        height: 100px;
-        background: yellowgreen;
-        border-radius: 10px;
-        /* outline在圆角的时候不会贴合 */
-        /* outline: 2px solid #655; */
-        box-shadow: 0 0 0 10px #655;
+
+      .info {
+        padding: 40px;
+        color: #fff;
       }
     </style>
   </head>
   <body>
-    <div class="center">
-      <div class="first">jsdjshdjsh</div>
-      <hr />
-      <div class="three"></div>
-      <div class="second">1321323232</div>
+    <div class="content">
+      <div class="info">
+        zxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXczxczxczxcZXcZXc
+      </div>
     </div>
-    <ul>
-      <li>1</li>
-      <li>2</li>
-      <li>3</li>
-    </ul>
-    <ol>
-      <li>1</li>
-      <li>2</li>
-      <li>3</li>
-    </ol>
-    <div class="translucent"></div>
-    <div class="multi-border"></div>
-    <div class="multi-border2"></div>
-    <div class="multi-border3"></div>
   </body>
 </html>

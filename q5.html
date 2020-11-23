@@ -1,98 +1,52 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
-    <style type="text/css">
-      .container {
-        width: 200px;
-        height: 100px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: blanchedalmond;
-        overflow: hidden;
-      }
-      .content {
-        display: flex;
-        /* position: relative; */
-        /* left: -400px; */
-        height: 100%;
-        width: 1000px;
-      }
-      .d1 {
-        height: 100%;
-        width: 500px;
-        background-color: red;
-      }
-      .d2 {
-        height: 100%;
-        width: 500px;
-        background-color: blue;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="content">
-        <div class="d1"></div>
-        <div class="d2"></div>
-      </div>
-    </div>
-  </body>
-</html> -->
-
-<html lang="en">
-  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>使用css3制作文字横向无限循环滚动的动画</title>
+    <!-- import CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
     <style>
-      /**
-　　　　　　设置宽，溢出隐藏
-　　*/
-      .marquee-outer-wrapper {
-        overflow: hidden;
-        width: 80%;
+      .el-upload-list--picture-card .el-upload-list__item {
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
       }
-
-      .marquee-inner-wrapper {
-        background: #eee;
-        height: 40px;
-        font-size: 14px;
-        color: red;
-        line-height: 40px;
-        margin: 0 auto;
-        white-space: nowrap;
-        position: relative;
-      }
-
-      @keyframes marquee {
-        0% {
-          -webkit-transform: translate3d(0, 0, 0);
-          transform: translate3d(0, 0, 0);
-        }
-
-        100% {
-          -webkit-transform: translate3d(, 0, 0);
-          transform: translate3d(-100%, 0, 0);
-          display: none;
-        }
+      .el-upload--picture-card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 64px;
+        height: 64px;
+        background: #000000;
+        border: 1px solid #ffe98b;
+        border-radius: 50%;
       }
     </style>
   </head>
 
   <body>
-    <div class="marquee-outer-wrapper">
-      <div class="marquee-inner-wrapper">
-        <span class="marquee">
-          使用css3制作文字横向无限循环滚动的动画使用css3制作文字横向无限循环滚动的动画使用css3制作文字横向无限循环滚动的动画
-        </span>
-        <span class="marquee">
-          使用css3制作文字横向无限循环滚动的动画使用css3制作文字横向无限循环滚动的动画使用css3制作文字横向无限循环滚动的动画
-        </span>
-      </div>
+    <div id="app">
+      <el-upload action="#" list-type="picture-card" :auto-upload="false">
+        <i class="el-icon-plus"></i>
+        <div slot-scope="{file}">
+          <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+        </div>
+      </el-upload>
     </div>
   </body>
+  <!-- import Vue before Element -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      data: function () {
+        return { visible: false };
+      },
+    });
+  </script>
 </html>

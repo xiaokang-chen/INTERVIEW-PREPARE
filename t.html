@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      table.game {
+        font-size: 14px;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+      }
+      table.game td {
+        border: 1px solid #e1e1e1;
+        padding: 0;
+        height: 30px;
+        text-align: center;
+      }
+      table.game td.current {
+        background: #1890ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="jsContainer">
+      <table class="game">
+        <tbody>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="current"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      function bind() {
+        document.onkeydown = (event) => {
+          if (!event) return;
+          var code = event.keyCode || "";
+          if (!{ 37: 1, 38: 1, 39: 1, 40: 1 }[code]) return;
+          event.preventDefault && event.preventDefault();
+          //TODO: 请实现按键控制
+          let node = document.getElementsByTagName("tbody")[0].children;
+          let m = node.length;
+          for (let i = 0; i < m; i++) {
+            let n = node[i].childElementCount;
+            for (let j = 0; j < n; j++) {
+              let curNode = node[i].getElementsByTagName("td")[j];
+              let next;
+              curNode.onkeydown = function () {
+                let nextNode;
+                if (code === "37") {
+                  // 向左移动
+                  next = j > 0 ? j - 1 : n - 1;
+                  nextNode = node[i].getElementsByTagName("td")[next];
+                } else if (code === "38") {
+                  // 向上
+                  next = i > 0 ? i - 1 : m - 1;
+                  nextNode = node[next].getElementsByTagName("td")[j];
+                } else if (code === "39") {
+                  // 向右
+                  next = i < n - 1 ? j + 1 : 0;
+                  nextNode = node[i].getElementsByTagName("td")[next];
+                } else if (code === "40") {
+                  // 向下
+                  next = i > m - 1 ? i + 1 : 0;
+                  nextNode = node[next].getElementsByTagName("td")[j];
+                }
+                curNode.classList.remove("current");
+                nextNode.classList.add("current");
+              };
+            }
+          }
+        };
+      }
+      bind();
+    </script>
+  </body>
+</html>
