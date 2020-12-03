@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Document</title>
+    <style>
+        #d {
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+            left: 0;
+            top: 0;
+            zoom: 1;
+            animation: slide1 3s infinite linear;
+        }
+
+        @keyframes slide1 {
+            50% {
+                transform: translateX(100px);
+            }
+        }
+
+        #e {
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+            left: 0;
+            top: 0;
+            zoom: 1;
+            animation: slide 3s infinite linear;
+        }
+
+        @keyframes slide {
+            0% {
+                left: 0
+            }
+            50% {
+                left: 100px
+            }
+        }
+    </style>
+    </head>
+    <body>
+        <!-- <div id="d"></div> -->
+        <div id="e"></div>
+    </body>
+</html>

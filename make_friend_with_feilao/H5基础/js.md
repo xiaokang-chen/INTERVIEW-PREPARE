@@ -9,7 +9,44 @@ https://www.jb51.net/article/121063.htm
 
 我的理解：
 
-## 2. 跨域问题
+## 2. 浅拷贝和深拷贝
+
+浅拷贝：值的复制
+
+深拷贝：引用的复制
+
+针对只包含一级属性，没有二级属性的对象，可以使用Object.assign()来实现深拷贝
+
+对于包含二级属性及以上的对象，使用如下方式实现深拷贝：
+
+1. JSON.parse(JSON.stringify())
+原理：利用JSON.stringify将js对象序列化，再使用JSON.parse来反序列化（还原）对象。
+
+缺点：
+
+- 如果obj中有时间对象，序列化的结果，时间只能是字符串形式，而不是时间对象
+- 如果obj中有正则、Error对象，序列化的结果将只能得到空对象
+
+2. 递归方法
+
+```js
+function deepcopy(obj) {
+  //  将对象的特殊情况进行处理
+  if (obj === null) return null;
+  if (obj instanceof RegExp) return new RegExp(obj);
+  if (obj instanceof Date) return new Date(obj);
+
+  if (typeof obj !== "object") {
+    return obj;
+  }
+
+  let newObj = new obj.constructor();
+  for (let key in obj) {
+    newObj[key] = deepcopy(obj[key]);
+  }
+  return newObj;
+}
+```
 
 ## 3. 防抖节流
 
@@ -32,11 +69,11 @@ window.onscroll = showBTop;
 ```js
 function debounce(fn, delay) {
   let timer = null; //借助闭包
-  return function () {
+  return function (...args) {
     if (timer) {
       clearTimeout(timer);
     }
-    timer = setTimeout(fn, delay);
+    timer = setTimeout(() => fn(...args), delay);
   };
 }
 function showTop() {
@@ -55,14 +92,14 @@ window.onscroll = debounce(showTop, 1000);
 ```js
 function throttle(fn, delay) {
   let valid = true;
-  return function () {
+  return function (...args) {
     if (!valid) {
       return false;
     }
     // 工作时间，执行函数并且在间隔期内把状态位设为无效
     valid = false;
     setTimeout(() => {
-      fn();
+      fn(...args);
       valid = true;
     }, delay);
   };
@@ -147,6 +184,7 @@ if (a !== null && typeof a !== undefined && a !== "") {
 // 用!!等同于上面的写法
 if (!!a) {
   // a有内容时才执行的代码
+  // 筛选掉null、undefined和空字符串
 }
 ```
 
@@ -187,4 +225,172 @@ function funcA() {
 
 当进入 funcA 时，会把 a 压入到作用域 A 中，并且将作用域 A 入栈；当进入 funB 时，则会把变量 b 压入到作用域 B 中，并且将作用域 B 入栈，这时候栈内存中就有作用域 A 和作用域 B，当在 funcB 中查找某个变量时，会先从当前的作用域 B 中查找，如果没有，则依次向栈底查找，**这就是作用域链**。
 
+### 8.2 函数的作用域链
+
+1. 创建函数func时，会创建一个预先包含全局变量对象的<font color='red'>作用域链</font>，保存在内部的[[Scopes]]属性中（可通过func.prototype看到）
+
+![](../pic/js/12.png)
+
+2. 调用函数func时，为此函数创建一个**执行环境**
+3. 复制函数的[[Scopes]]属性中的对象构造**执行环境的作用域链**
+4. 创建一个**活动对象**，推入执行环境作用域链的前端([0]位置)
+
+此时执行环境的作用域链中包含两个对象：**全局变量对象**，**局部活动对象**。函数中访问一个变量时，就会从作用域链中搜索（[[Scopes]]中从前往后找）具有响应名字的变量；函数执行完毕后，局部活动对象被销毁，内存中仅保存全局作用域。
+
+### 8.3 例子
+
+```js
+let func1, func2;
+function foo(){
+  let x = 10;
+  func1 = function(){
+    console.log(++x);
+  }
+  func2 = function(){
+    console.log(--x);
+  }
+}
+foo(); // 初始化func1,func2
+func1(); // 11
+func2(); // 10
+```
+
+可以利用这种方法在闭包函数外操作到闭包函数内的变量。<font color='red'>原因：在用一个父作用域的闭包共享了同一个[[Scopes]]属性</font>
+
+![](../pic/js/13.png)
+
+```js
+let x = 10;
+function foo(){
+  console.log(x);
+}
+foo(); // 10
+function func(){
+  let x = 20;
+  let foo1 = foo;
+  foo1();
+}
+func(); // 10
+```
+
+答案是10的原因是因为在复制函数时，<font color='red'>复制后的函数和复制前的函数引用的是同一个[[Scopes]]属性</font>。由于foo的Scopes属性中的x保存的是全局变量的x=10，foo1与其相同，所以foo1在执行时，按照scopes属性查找作用域链时，查到了x=10。
+
 ## 9. 0.1 + 0.2 ≠ 0.3
+
+## 10. js垃圾回收
+
+可达性：<font color='red'>以某种方式可访问或可用的值，它们被保存在内存中，则该值可达</font>
+
+js引擎会有一个后台进程**垃圾回收器**，它监视着所有对象，删除那些**不可达**的对象。
+
+### 10.1 例子1
+
+```js
+let user = {
+  name: 'John'
+};
+```
+
+![](../pic/js/1.png)
+全局对象user引用了对象{name: 'John'}，为简单起见，该对象称为**JOHN**。
+
+```js
+user = null;
+```
+
+![](../pic/js/2.png)
+现在**JOHN**变成不可达状态了，没有办法访问它，没有对它的引用。垃圾回收器将丢弃JOHN并释放内存。
+
+如果下面这种情况：
+
+```js
+let user = {
+  name: 'John'
+};
+let admin = user;
+```
+
+![](../pic/js/3.png)
+
+我们做同样的事情：
+
+```js
+user = null;
+```
+
+由于**JOHN**仍然可以由admin访问，所以它可达，垃圾回收器不会回收
+
+### 10.2 例子2
+
+```js
+function marry(man, woman){
+  woman.husband = man;
+  man.wife = woman;
+
+  return {
+    father: man,
+    mother: woman
+  }
+}
+
+let family = marry({
+  name: "John"  
+},{
+  name: 'Ann'
+})
+```
+
+函数marry通过给两个对象彼此提供引用来“联姻”，并返回一个新对象，产生的内存结构如下：
+
+![](../pic/js/4.png)
+
+到目前为止，所有对象都是可访问的。我们删除两个引用：
+
+```js
+delete family.father;
+delete family.mother.husband;
+```
+
+![](../pic/js/5.png)
+
+<font color='red'>如果只是删除这两个引用中的一个，是不够的，因为所有对象仍然可达</font>。但是删除了两个引用，就会导致{name: 'John'}不可达，垃圾回收器回收**JOHN**。
+
+![](../pic/js/6.png)
+
+### 10.3 标记-清除算法
+
+基本的垃圾回收算法就叫**标记-清除算法**，定期执行以下垃圾回收步骤：
+
+- 垃圾回收器获取根并**标记**它们
+- 然后访问并**标记**所有来自它们的引用
+- 然后依次类推（树状递归），直到有未访问的引用为止
+- 除标记的对象外（可达），其他对象都被删除
+
+例如：对象结构如下，可以清楚的看到右边有一个不可达的对象，来看看垃圾回收器如何**标记-清除**：
+
+![](../pic/js/7.png)
+
+1. 标记根
+
+![](../pic/js/8.png)
+
+2. 标记根的引用
+
+![](../pic/js/9.png)
+
+3. 继续“广度优先遍历”，直到遍历到头（没有引用）
+
+![](../pic/js/10.png)
+
+4. 现在垃圾回收进程中不能访问的对象被认为是**垃圾**，将被删除
+
+![](../pic/js/11.png)
+
+### 10.4 其他算法
+
+1. 标记-压缩
+通过数次搜索堆来重新装填活动对象
+2. 引用计数（低版本的ie浏览器）
+记录每个对象被引用的次数，每次新建、赋值、删除都会更新计数器，计数器为0的时候回收内存。
+优点：不需要进行复杂遍历
+缺点：循环引用无法回收；闭包中引用DOM对象，会导致内存泄漏

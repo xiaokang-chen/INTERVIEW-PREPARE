@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+        <button id="btn">点击</button>
+        <ul id="container"></ul>
+        <script>
+            document.getElementById('btn').addEventListener('click', () => {
+                // 记录任务开始时间
+                let now = new Date();
+                // 插入10W条数据
+                const total = 100000;
+                // 获取ul容器
+                const ul = document.getElementById('container');
+                console.log('循环前', new Date() - now);
+                // 将数据插入容器中
+                for(let i = 0; i < total; i++){
+                    let li = document.createElement('li');
+                    li.innerText = i;
+                    ul.appendChild(li);
+                }
+                console.log('JS运行开始时间：', new Date() - now);
+                setTimeout(() => {
+                    console.log('JS运行结束时间：', new Date() - now);
+                }, 0);
+            })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Document</title>
+    </head>
+    <body>
+        <script>
+            // pure js
+            // 1. 创建style
+            let myStyle = document.createElement('style');
+            myStyle.innerHTML = '.e {width: 100px; \
+                height: 100px; background: red; \
+                position: absolute; left: 0; \
+                top: 0; zoom: 1; \
+            }'
+            document.head.appendChild(myStyle);
+            // 2. 创建div
+            let myDiv = document.createElement('div');
+            myDiv.id = 'e';
+            myDiv.className = 'e';
+            document.body.appendChild(myDiv);
+
+            // same code with before
+            let e = document.getElementById('e');
+            let flag = true;
+            let left = 0;
+
+            function render(){
+                if(flag === true){
+                    if(left >= 100){
+                        flag = false;
+                    }
+                    e.style.left = `${left++}px`;
+                }else{
+                    if(left <= 0){
+                        flag = true;
+                    }
+                    e.style.left = `${left--}px`;
+                }
+            }
+            setInterval(function(){
+                render();
+            }, 1000/60)
+        </script>
+    </body>
+</html>
