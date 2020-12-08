@@ -209,7 +209,7 @@ if (!!a) {
    在顶层环境中声明的变量都是全局作用域，他们的属性都是 window 对象下。
 2. 函数作用域
    在函数内部定义的变量都是函数作用域，只能在函数内部访问到，也可以通过闭包访问。除此之外，别的地方是无法访问的。
-3. 局部作用域
+3. 局部作用域（块级）
    es6 新增的特性，使用 let 或 const 声明变量。声明的变量只能在声明之后访问到。
 4. 作用域链
    如下：
@@ -394,3 +394,155 @@ delete family.mother.husband;
 记录每个对象被引用的次数，每次新建、赋值、删除都会更新计数器，计数器为0的时候回收内存。
 优点：不需要进行复杂遍历
 缺点：循环引用无法回收；闭包中引用DOM对象，会导致内存泄漏
+
+## 11 IIFE
+
+IIFE是立即调用函数表达式。<font color='red'>IIFE的作用是为了解决js在作用域方法的缺陷。</font>JS只有全局作用域、函数作用域、块级作用域（es6）。而只有function才能实现**作用域隔离**。因此，要想将一段代码中的变量、函数等的定义隔离出来，只能将这段代码封装到一个函数中。
+
+```js
+let a = 1;
+(function(){
+  let a = 2;
+  console.log(a);
+})()
+
+// 2
+```
+
+## 12 Proxy
+
+### 12.1 基础概念
+
+Proxy是对象的中间件，主要用来对对象的**各种行为**（Traps，最常见的traps是get和set）进行代理。
+
+乍一看，它做的事情好像get和set本身就可以做，但是它们之前是有差别的，可以说**Proxy是get和set的“升级版”**：
+
+```js
+let obj = {
+  _age: 18,
+  get age(){
+    return `I'm ${_age} years old`
+  },
+  set age(val){
+    console.log('设置了_age属性');
+    this._age = Number(val)
+  }
+}
+```
+
+我们在obj中定义一个属性_age，然后设置了一个get age和set age。然后可以obj.age来获取一个返回值，也可以设置它。
+
+但是有两个很大问题：
+1. <font color='red'>如果属性很多的时候，我们需要对每一个属性都编写一个getter和setter</font>
+2. 必须还需要在对象中存在一个存储真实值的key（本例中需要提供一个**age这个key**来存储真实值），如下图：
+
+![](../pic/js/14.png)
+
+**Proxy**可以很好的解决这两个问题：
+
+```js
+let obj = {
+  _name: 'John',
+  _age: 18
+}
+let handler = {
+  get (obj, key) {
+    return `${key}: ${obj[key]}`
+  },
+  set (obj, key, value){
+    console.log('设置了属性');
+    obj[key] = value;
+  }
+}
+let proxy = new Proxy(obj, handler);
+proxy._age = 19;  // 设置了属性
+console.log(obj._name, proxy._name);  //  John _name: John
+```
+
+我们创建get、set两个trap来统一管理所有属性，在修改proxy的时候，obj的内容也修改了，并且我们对proxy的行为进行了一些特殊的处理。
+而且我们无需额外的用一个key去存储真实的值，因为在trap中操作的是真实的对象（obj），而不是proxy对象。
+
+### 12.2 应用1：缓存
+
+场景：我们有一个银行账户对象，里面有账户名、人民币余额，我们希望获取到人民币余额对应的美元价值，并在后续访问的时候，直接访问缓存结果，而无需再次进行人民币转美元的计算。
+
+```js
+let bankAccount = {
+  remain: 1000,
+  name: 'Peter',
+  get dollars(){
+    console.log('Calculating Dollars')
+    return this.remain / 6.5;
+  }
+}
+// 缓存对象
+let cache = {
+  currentRemain: null, // 人民币
+  currentValue: null    // 美刀
+}
+let handler = {
+  get(obj, key){
+    if(key === 'dollars'){
+      // 如果第一次，则进行计算后返回结果，并存到缓存中
+      // 如果不是第一次，则访问缓存中的值
+      if(cache.currentRemain !== obj.remain){
+        // 拉取最新数据
+        console.log("存到缓存中");
+        cache.currentValue = obj[key];
+        cache.currentRemain = obj.remain;
+      }
+      return cache.currentValue;
+    }
+  }
+}
+
+const proxyBankAccount = new Proxy(bankAccount, handler);
+console.log(proxyBankAccount.dollars);
+console.log(proxyBankAccount.dollars);
+```
+
+### 12.3 应用2：vue3数据监听
+
+在看vue3数据监听之前，先来看看如果利用proxy实现对对象属性的监听从而实现dom变化：
+
+```js
+const bankAccount = {
+  remain: 1000,
+  name: 'Peter',
+  get text(){
+    return `${this.name} remain rmb is: ${this.remain}`
+  }
+};
+
+const objectWithDom = function(object, domId){
+  const handler = {
+    set: function(obj, key, value){
+      obj[key] = value;
+
+      document.getElementById(domId).innerHTML = obj.text;
+
+      return true;
+    }
+  }
+  return new Proxy(object, handler);
+}
+
+const proxyBankAccount = objectWithDom(bankAccount, 'e');
+proxyBankAccount.remain = 20;
+proxyBankAccount.name = 'cxk';
+```
+
+具体效果看：[proxy_dom](./proxy_dom.html)
+
+## 13 Reflect
+
+Reflect不是构造函数，它是一个全局对象，原型是Object:
+
+![](../pic/js/15.png)
+
+设计目的：
+
+1. 将Object对象上一些明显属于语言内部的方法（比如Object.defineProperty）放到Reflect对象上
+2. 修改某些方法的返回结果，让其变得更合理（如Object.defineProperty）
+3. 让Object操作都变成函数式，如name in obj、delete obj\[name]，变成函数行为：Reflect.has(obj, name)和Reflect.delete(obj, name)
+4. Reflect对象的静态方法与Proxy实例化对象的方法一一对应。这样就可以让Proxy对象方便的调用Reflect方法，完成默认的行为。

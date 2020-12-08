@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #e {
+                color: red;
+                background: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='e'></div>
+        <script>
+            let bankAccount = {
+                remain: 1000,
+                name: 'Peter',
+                get text(){
+                    return `${this.name} remain rmb is ${this.remain}`;
+                }
+            }
+            function objectWithDom(object, domId){
+                let handler = {
+                    set: function(obj, key, value){
+                        obj[key] = value;
+
+                        document.getElementById(domId).innerHTML = obj.text;
+
+                        return true;
+                    }
+                }
+                return new Proxy(object, handler);
+            }
+
+            const wrappedBankAccount = objectWithDom(bankAccount, 'e');
+            wrappedBankAccount.remain = 20;
+            wrappedBankAccount.name = 'cxk';
+        </script>
+    </body>
+</html>

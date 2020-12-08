@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <script src="./预加载.js"></script>
+    <script>
+        function imgLoaded(){
+            console.log(this.width);
+            // document.body.appendChild(this);
+        }
+    </script>
+    <body>
+        <input type="button" value="loadImage" onclick="loadImage('a.jpg', imgLoaded)" />
+    </body>
+</html>
