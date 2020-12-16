@@ -1,0 +1,47 @@
+<body>
+    <script>
+        // 资源及其相关资源已完成加载(在DOMContentLoaded之后)
+        window.addEventListener('load' , onLoad1);
+        function onLoad1(){
+            console.log('Load');
+        }
+    </script>
+    <ul>
+        <!-- 定义路由 -->
+        <li><a href="#/home">home</a></li>
+        <li><a href="#/about">about</a></li>
+
+        <!-- 渲染路由对应的url -->
+        <div id="routeView"></div>
+    </ul>
+    <script>
+        // 页面加载完不会触发hashchange，这里需要主动触发一次
+        // 当初始的 HTML 文档被完全加载和解析完成之后，DOMContentLoaded 事件被触发
+        // 而无需等待样式表、图像和子框架的完全加载
+        window.addEventListener('DOMContentLoaded' , onLoad);
+        // 监听路由变化
+        window.addEventListener('hashchange', onHashChange)
+
+        // 路由视图
+        let routerView = null;
+        function onLoad(){
+            console.log('DOMContentLoaded')
+            routerView = document.querySelector('#routeView');
+            onHashChange();
+        }
+
+        // 路由变化时，根据路由渲染对一个UI
+        function onHashChange(){
+            switch(location.hash){
+                case '#/home':
+                    routerView.innerHTML = 'Home';
+                    break;
+                case '#/about':
+                    routerView.innerHTML = 'About';
+                    break;
+                default:
+                    routerView.innerHTML = 'Unknown Router';
+            }
+        }
+    </script>
+</body>

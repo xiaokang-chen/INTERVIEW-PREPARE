@@ -29,7 +29,7 @@
             if(!arr.hasOwnProperty(i)){
                 continue;
             }
-            res = fn.call(null, res, arr[i], i, this);
+            res = fn(res, arr[i], i, this);
         }
         // callback(accumulator, currentValue, index, array)
         // 其中accumulator代表当前元素之前计算的和

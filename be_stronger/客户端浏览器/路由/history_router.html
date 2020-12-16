@@ -1,0 +1,41 @@
+<body>
+    <ul>
+        <li><a href="/home">home</a></li>
+        <li><a href="/about">about</a></li>
+        <div id="routeView"></div>
+    </ul>
+    <script>
+        
+        window.addEventListener('DOMContentLoaded', onLoad);
+        // 监听路由变化
+        window.addEventListener('popstate', onPopState);
+
+        // 路由视图
+        let routerView = null;
+        function onLoad(){
+            routerView = document.querySelector('#routeView');
+            onPopState();
+
+            // 拦截a标签点击事件的默认行为（关键之处！！！）
+            let linkList = document.querySelectorAll('a[href]');
+            linkList.forEach(el => el.addEventListener('click', function(e){
+                e.preventDefault();
+                history.pushState(null, '', el.getAttribute('href'));
+                onPopState();
+            }))
+        }
+
+        function onPopState(){
+            switch(location.pathname){
+                case '/home':
+                    routerView.innerHTML = 'Home';
+                    break;
+                case '/about':
+                    routerView.innerHTML = 'About';
+                    break;
+                default:
+                    routerView.innerHTML = 'default router';
+            }
+        }
+    </script>
+</body>

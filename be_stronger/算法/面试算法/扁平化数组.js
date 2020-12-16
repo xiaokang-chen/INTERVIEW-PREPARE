@@ -17,5 +17,11 @@ function flatArr(arr){
     return res;
 }
 
+function flatArr2(arr){
+    return arr.reduce((prev, currentValue) => {
+        return [...prev, ...Array.isArray(currentValue) ? flatArr2(currentValue) : [currentValue]];
+    }, []);
+}
+
 const arr = [[1, [2, 3], [4, 5, 6]], 7, 8];
-console.log(flatArr(arr));
+console.log(flatArr2(arr));
